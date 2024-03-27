@@ -1,0 +1,87 @@
+% psychtoolbox testing and MATLAB recap 
+% Hello MATLAB I'm back :\
+
+%% initialization
+
+% clean workspace and command window
+clear all
+clc
+
+% add path 
+addpath('/Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab_codes')
+
+
+%% configuration
+
+do_run_screen = true;
+do_run_sound = false;
+do_run_keyboard = false;
+
+%% psychtoolbox 
+
+%{ 
+Here I'm testing psychtoolbox functions for 
+- screen display
+- audio presentation 
+- keyboard listening 
+- timestamp recording 
+%}
+
+% -----------------------------------------------
+% screen display
+% -----------------------------------------------
+
+% Here I'm skipping syncronization test as psychtoolbox syncing is not 
+% working well for M2 Chip Macbook. Only SkipSyncTests for testing on my 
+% own computer, should do SyncTests on task presentation pc. 
+
+Screen('Preference','SkipSyncTests',1);
+
+% Some initial Screen information 
+screenNumbers=Screen('Screens');
+screenIdx = screenNumbers(end);
+screenFR = Screen('FrameRate',screenIdx);
+fprintf("Display on Screen: %d\n",screenIdx)
+fprintf("Screen refresh rate: %d\n",screenFR)
+
+% [windowPtr,rect]=Screen(‘OpenWindow‘,windowPtrOrScreenNumber [,color] [,rect] 
+% [,pixelSize] [,numberOfBuffers] [,stereomode] [,multisample][,imagingmode]
+% [,specialFlags][,clientRect][,fbOverrideRect][,vrrParams=[]]);
+
+[win, rect] = Screen('OpenWindow',screenIdx,[0,0,0]);
+Screen('TextSize', win, 120);
+DrawFormattedText(win, '+', 'center','center',[255 255 255]);
+% The Screen is draw in the buffer and won't show until "flip" the screen
+
+% [VBLTimestamp StimulusOnsetTime FlipTimestamp Missed Beampos] = 
+% Screen(‘Flip’, windowPtr [, when] [, dontclear] [, dontsync] [, multiflip]);
+% 
+% “when” specifies when to flip: If set to zero (default), it will flip
+% on the next possible video retrace
+[~, onsettime, ~, ~, ~] = Screen('Flip', win);
+Screen('CloseAll');
+
+
+% -----------------------------------------------
+% audio presentation
+% -----------------------------------------------
+
+InitializePsychSound;
+
+% pahandle = PsychPortAudio(‘Open’ [, deviceid][, mode][, reqlatencyclass][, freq]
+% [, channels][, buffersize][, suggestedLatency][, selectchannels][, specialFlags=0]);
+freq = 44100;
+pahandle = PsychPortAudio('Open', [], [], 0, freq,2);
+[stim,~] = audioread("AV-2back/animal-sounds/cat_sounds/1.wav");
+
+% Each row of the matrix specifies one sound channel, each column one sample for each channel.
+PsychPortAudio('FillBuffer', pahandle, (stim';stim')); 
+PsychPortAudio('Start', pahandle, 1, 0, 1);
+PsychPortAudio('Close', pahandle);
+
+
+% Squelch kb input, hide cursor.
+% ListenChar(2);
+% ListenChar(0);
+
+
