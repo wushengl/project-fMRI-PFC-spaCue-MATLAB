@@ -2,13 +2,19 @@
 %
 % Task info:
 % - each trial could be spatial/non-spatial task 
+% - each trial could be presented from left/right hemisphere
+% - each trial could be spatialized with HRTF/ILD/ITD
+% - 12 conditions (2 task type * 2 hemisphere * 3 spatial cue)
+%
 % - each trial contains 2 sequences with 4 syllables in each sequence 
-% - each syllable could be presented from 3 possible spatial location 
+% - each syllable could be presented from 3 possible location in that hemi
 % - each syllable could be either BA, DA, GA 
 %
-% The whole task will be separate into several runs with scanner,
+% The whole task has 8 runs, each run will contain 12 blocks, 
+% each block is ~25sec, with only 1 condition, and 4 trials.
+%
 % run this script once for each run, fill in the run number in dialog. 
-% There will be several trials per run, with no break, but some fixation
+% There will be no break within each run (~6min), but some fixation
 % time at beginning, middle, and end of the run. 
 
 clear all
@@ -17,9 +23,12 @@ addpath(genpath('/Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab'))
 cd /Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/SN-pattern/
 
 %% configuration
-runNum = 4;
-trialPerRun = 30;
-runInfo = getRunInfo(runNum,trialPerRun);
+
+cfg.runNum = 8; % TODO: change back to 8
+cfg.blockPerRun = 12;
+cfg.trialPerBlock = 4; 
+trialPerRun = cfg.blockPerRun * cfg.trialPerBlock; 
+runInfo = getRunInfo(cfg); 
 
 % run setting
 cfg.subID = runInfo{1};        % char array
@@ -27,12 +36,12 @@ cfg.device = runInfo{2};       % char array
 cfg.runMode = runInfo{3};      % char array
 cfg.trialNum = runInfo{4};     % integer number
 cfg.trialOrder = runInfo{5};   % trialPerRun length string array
-cfg.eyetracker = runInfo{6};   % 0/1
-cfg.runIdx = runInfo{7};       % integer number
-
-% audio setting=1211
-cfg.fs = 44100;
-cfg.dirPool = ["15", "45", "90"];
+cfg.blockOrder = runInfo{6};   % blockPerRun length string array
+cfg.eyetracker = runInfo{7};   % 0/1
+cfg.runIdx = runInfo{8};       % integer number
+if ~strcmp(cfg.runMode,'task')
+    cfg.blockPerRun = 1;
+end
 
 % folders
 cfg.sylbFoler = './stimuli/normalized-mono/syllables/';
@@ -42,8 +51,11 @@ if ~exist(cfg.saveFolder, 'dir')
     mkdir(cfg.saveFolder) 
 end
 
+% audio setting
+cfg.fs = 44100;
+cfg.dirPool = ["15", "45", "90"];
+
 % trial setting
-cfg.taskScreenDur = 1.0;
 cfg.sylbDur = 0.4;
 cfg.cue2tarIntv = 0.5;
 cfg.sylbIntv = 0;
@@ -51,14 +63,21 @@ cfg.pat2patIntv = 0.4;
 cfg.respDur = 1.5;
 cfg.sylbPerPat = 4;
 cfg.patPerTrial = 2;
-cfg.trialDur = cfg.taskScreenDur + cfg.sylbDur + cfg.cue2tarIntv + ...
+cfg.trialDur = cfg.sylbDur + cfg.cue2tarIntv + ...
     cfg.sylbDur*cfg.sylbPerPat*cfg.patPerTrial + cfg.pat2patIntv + cfg.respDur;
-% 1(task type) + 0.4(cue) + 0.5 + 0.4*4*2 (pattern*2) + 0.4 + 1.5 = 7s per trial
+cfg.trialAudDur = cfg.trialDur - cfg.respDur;
+% 0.4(cue) + 0.5 + 0.4*4*2 (pattern*2) + 0.4 + 1.5 = 6s per trial
+
+% block setting 
+cfg.taskScreenDur = 1.0;
+cfg.blockIntv = 4.0;
+cfg.blockDur = cfg.taskScreenDur + cfg.trialDur * cfg.trialPerBlock + cfg.blockIntv;
 
 % scanner related 
 TR = 2;
 TRperTrial = cfg.trialDur/TR; % 3.5TR per trial
-TRperRun = TRperTrial*trialPerRun; 
+TRperBlock = cfg.blockDur/TR;
+TRperRun = TRperBlock*cfg.blockPerRun; % this is not including fixation time
 
 % fixation time setting
 cfg.fixTime = 2*TR; % TODO: change back to 4 after finish piloting
@@ -94,7 +113,7 @@ screenNum=Screen('Screens');
 screenIdx = screenNum(end);
 [cfg.win, rect] = Screen('OpenWindow',screenIdx,[0 0 0]); 
 % rect is needed for eyetracker setup, PTB init has to be before eyetracker
-
+cfg.rect = rect;
 
 %% eyetracker setup
 
@@ -116,9 +135,11 @@ end
 % Here I'm switching to create start times ahead of time and execute events
 % at desired time. As those time will be used for fMRI analysis anyhow.
 
+blockStartTimes = (0:cfg.blockPerRun-1)*TRperBlock*TR + cfg.fixTime;
+blockStartTimes(cfg.blockPerRun/2+1:end) = blockStartTimes(cfg.blockPerRun/2+1:end) + cfg.fixTime;
+
 trialStartTimes = (0:trialPerRun-1)*TR*TRperTrial + cfg.fixTime;
 trialStartTimes(trialPerRun/2+1:end) = trialStartTimes(trialPerRun/2+1:end) + cfg.fixTime;
-
 
 %% Prepare spatialized stimuli 
 % spaSylbs stores all spatialized syllables, so that when generating the
@@ -164,57 +185,84 @@ if cfg.eyetracker
     Eyelink('StartRecording');
 end
 
-for i = 1:cfg.trialNum
+for i = 1:cfg.blockPerRun
+    % would be easier to collect response per trial, so I'm still playing
+    % sounds on trial basis 
 
-    % trial prep
-    thisTrial = char(cfg.trialOrder(i));
-    thisTaskType = thisTrial(1);
+    thisBlockType = char(cfg.blockOrder(i));
+    fprintf("Current block: %d\n",i)
+    fprintf("Block type: %s\n",thisBlockType)
+    drawTasktypeScreen(cfg,thisBlockType(1),i);
 
-    fprintf("Current trial: %d\n",i)
-    fprintf("Trial type: %s\n",thisTrial)
+    % prep audio for the entire block
+    blockSig_dur = cfg.trialDur*cfg.trialPerBlock;
+    trialSig_len = int32((cfg.trialDur-cfg.respDur)*cfg.fs);
+    blockSig = zeros(cfg.trialPerBlock,trialSig_len,2);
 
-    thisTrialSig = generateTrialSig(cfg,thisTrial,spaSylbs); 
-    drawTasktypeScreen(cfg,thisTaskType);
+    for j = 1:cfg.trialPerBlock
+        trial_idx = (i-1)*cfg.trialPerBlock + j;
+        thisTrial = char(cfg.trialOrder(trial_idx));
+        thisTrialSig = generateTrialSig(cfg,thisTrial,spaSylbs); 
+        blockSig(j,:,:) = thisTrialSig;
+    end
 
-    % wait to show task type screen
-    while GetSecs - runStartTime < trialStartTimes(i)
+    % wait for block onset to show block screen
+    while GetSecs - runStartTime < blockStartTimes(i)
         % wait until trial onset time
     end
     Screen('Flip', cfg.win); % show task type screen
-    trialStartTime = GetSecs;
 
-    % show task type screen for certain duration
-    WaitSecs(cfg.taskScreenDur);
+    % TODO: add more customized eyetracker message
     if cfg.eyetracker
         Eyelink('Message','SYNCTIME');
     end
+    blockStartTime = GetSecs;
+    WaitSecs(cfg.taskScreenDur);
 
-    % onset of audio signal
-    DrawFormattedText(cfg.win, '+', 'center','center',[255 255 255]);
+    for j = 1:cfg.trialPerBlock
+
+        % show fixation
+        DrawFormattedText(cfg.win, '+', 'center','center',[255 255 255]);
+        Screen('Flip', cfg.win);
+        fprintf("Current trial: %d\n",j)
+
+        audioOnsetTime = GetSecs;
+        disp("audio start relative to block onset:")
+        disp(audioOnsetTime-blockStartTime)
+
+        % play audio 
+        PsychPortAudio('FillBuffer', cfg.pahandle, squeeze(blockSig(j,:,:))');
+        PsychPortAudio('Start', cfg.pahandle, 1, 0, 0); % TODO: waitForStart = 0 or 1
+
+        % response time 
+        WaitSecs(cfg.trialAudDur); % now it's only taking response at response screen
+        DrawFormattedText(cfg.win, 'RESPONSE', 'center','center',[255 255 255]); % to help them separate trials
+        Screen('Flip', cfg.win);
+        cfg.respStartTime = GetSecs; % excution moves on before audio finished
+        [responses(i,1),responses(i,2)] = getResponse(cfg); 
+
+        while GetSecs - cfg.respStartTime < cfg.respDur
+            % still show RESPONSE screen if pressed button and breaked early
+        end
+
+        trialEndTime = GetSecs;
+        disp("trial finish relative to trial onset:")
+        disp(trialEndTime-audioOnsetTime) 
+    end
+
+    disp("block finish relative to block onset:")
+    disp(GetSecs-blockStartTime)
+    
+    DrawFormattedText(cfg.win, 'WAITING FOR NEXT BLOCK...', 'center','center',[255 255 255]);
     Screen('Flip', cfg.win);
-    audioOnsetTime = GetSecs;
-    disp("audio start relative to trial onset:")
-    disp(audioOnsetTime-trialStartTime)
-
-    % play audio 
-    PsychPortAudio('FillBuffer', cfg.pahandle, thisTrialSig');
-    PsychPortAudio('Start', cfg.pahandle, 1, 0, 0); % TODO: waitForStart = 0 or 1
-
-    % response time 
-    cfg.respStartTime = audioOnsetTime; % excution moves on before audio finished
-    [responses(i,1),responses(i,2)] = getResponse(cfg); 
-    trialEndTime = GetSecs;
-    disp("trial finish relative to trial onset:")
-    disp(trialEndTime-trialStartTime) 
 
     % ending info
     save([cfg.saveFolder filename]);
-
+    
     % fixation in the middle
-    if i == cfg.trialNum/2
+    if i == cfg.blockPerRun/2
         showFixationScreen(cfg);
     end
-
 end
 
 % fixation at the end

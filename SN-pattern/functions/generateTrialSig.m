@@ -5,7 +5,20 @@ function trialSig = generateTrialSig(cfg,thisTrial,spaSylbs)
 
 taskType = thisTrial(1);
 tarHemi = thisTrial(2);
-isTar = thisTrial(3);
+spaCue_char = thisTrial(3);
+isTar = thisTrial(4);
+
+switch spaCue_char
+    case 'F'
+        spaCue = "HRTF";
+    case 'L'
+        spaCue = "ILD";
+    case 'T'
+        spaCue = "ITD";
+    otherwise
+        error("Undefined spaCue_car in thisTrial.")
+end
+
 
 %% generate random sequence
 % 1. generate pattern 1 purely randomly
@@ -53,7 +66,7 @@ trialSig = zeros(audio_samps,2);
 
 cue_sylb = "ba";
 cue_dir = cfg.dirPool(2);
-cue_sig = spaSylbs.(cue_sylb+"_"+cue_dir+string(tarHemi));
+cue_sig = spaSylbs.(cue_sylb+"_"+cue_dir+string(tarHemi)+"_"+spaCue);
 sylb_len = length(cue_sig);
 trialSig(1:sylb_len,:) = cue_sig; 
 
@@ -67,8 +80,8 @@ for s = 1:cfg.sylbPerPat
     this_ptn1_dir = ptn1_dirs(s); % e.g. "30"
     this_ptn2_dir = ptn2_dirs(s);
 
-    this_ptn1_sig = spaSylbs.(this_ptn1_sylb+"_"+this_ptn1_dir+string(tarHemi));
-    this_ptn2_sig = spaSylbs.(this_ptn2_sylb+"_"+this_ptn2_dir+string(tarHemi));
+    this_ptn1_sig = spaSylbs.(this_ptn1_sylb+"_"+this_ptn1_dir+string(tarHemi)+"_"+spaCue);
+    this_ptn2_sig = spaSylbs.(this_ptn2_sylb+"_"+this_ptn2_dir+string(tarHemi)+"_"+spaCue);
 
     this_ptn1_onset = ceil(ptn1_onsets(s)*cfg.fs);
     this_ptn2_onset = ceil(ptn2_onsets(s)*cfg.fs);

@@ -4,7 +4,7 @@ KbQueueCreate;
 KbQueueStart;
 anyPressed = 0;
 
-while GetSecs - cfg.respStartTime < cfg.trialDur - cfg.taskScreenDur
+while GetSecs - cfg.respStartTime < cfg.respDur
     [pressed, firstPress]=KbQueueCheck;
     if pressed
         kidx = find(firstPress);

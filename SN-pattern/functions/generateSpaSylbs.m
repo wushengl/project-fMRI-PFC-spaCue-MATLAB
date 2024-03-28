@@ -16,31 +16,36 @@ end
 
 
 % convolve to obtain spatialized syllables
+spaCuePool = ["HRTF","ILD","ITD"];
 for dir = cfg.dirPool
 
-    % obtain frequency specific ILD and ITDs
     hrir_file = [cfg.hrirFolder 'H0e0' char(dir) 'a.wav'];
     [hrir,~] = audioread(hrir_file); % (128,2)
-    ild = getFreqSpecILD(hrir);
-    itd = getFreqSpecITD(hrir);
+
+    % obtain frequency specific ILD and ITDs and save all to struct
+    spaCues.("HRTF") = hrir;
+    spaCues.("ILD") = getFreqSpecILD(hrir);
+    spaCues.("ITD") = getFreqSpecITD(hrir);
 
     for hemi = ["L","R"]
         tarDir = dir+hemi; 
-        
-        for sylb = sigPool
-            if hemi == "R"
-                spaSig_ch1 = conv(sigs.(sylb), hrir(:,1));
-                spaSig_ch2 = conv(sigs.(sylb), hrir(:,2));
-            elseif hemi == "L"
-                spaSig_ch1 = conv(sigs.(sylb), hrir(:,2));
-                spaSig_ch2 = conv(sigs.(sylb), hrir(:,1));
-            end
+        for spaCue = spaCuePool
+            thisSpaCue = spaCues.(spaCue); % e.g. 30 degrees frequency-specific ild 
+            for sylb = sigPool
+                if hemi == "R"
+                    spaSig_ch1 = conv(sigs.(sylb), thisSpaCue(:,1));
+                    spaSig_ch2 = conv(sigs.(sylb), thisSpaCue(:,2));
+                elseif hemi == "L"
+                    spaSig_ch1 = conv(sigs.(sylb), thisSpaCue(:,2));
+                    spaSig_ch2 = conv(sigs.(sylb), thisSpaCue(:,1));
+                end
 
-            % pad to fixed length
-            if length(spaSig_ch1) > sigLen
-                error("Spatialized signal longer than desired length!")
-            else
-                spaSylbs.(sylb+"_"+tarDir) = padarray([spaSig_ch1, spaSig_ch2],sigLen-length(spaSig_ch1),0,'post');
+                % pad to fixed length
+                if length(spaSig_ch1) > sigLen
+                    error("Spatialized signal longer than desired length!")
+                else
+                    spaSylbs.(sylb+"_"+tarDir+"_"+spaCue) = padarray([spaSig_ch1, spaSig_ch2],sigLen-length(spaSig_ch1),0,'post');
+                end
             end
         end
     end
@@ -52,16 +57,46 @@ end
 
 function ild = getFreqSpecILD(hrir)
 
-% TODO: update this 
-ild = hrir;
+% ym is minimum phase cepstrum reconstruction of signal
+[~,ild1] = rceps(hrir(:,1));
+[~,ild2] = rceps(hrir(:,2));
 
+ild = [ild1,ild2];
+
+% testing - plots
+% plot(hrir(:,1)); hold on; plot(ild1)
+% plot(abs(fft(hrir(:,1)))); hold on; stem(abs(fft(ild1)))
+% plot(unwrap(angle(fft(hrir(:,1))))); hold on; stem(unwrap(angle(fft(ild1))))
+
+% testing - sounds
+% test_ild = [conv(sig,ild(:,1)),conv(sig,ild(:,1))];
+% test_hrir = [conv(sig,hrir(:,1)),conv(sig,hrir(:,1))];
+% sound(test_ild,44100)
 end
-
 
 
 function itd = getFreqSpecITD(hrir)
 
-% TODO: update this 
-itd = hrir;
+epsilon = 10^-8; % avoid dividing by 0
+P = nextpow2(length(hrir));
+N = 2^P; % in case having extra long hrir, this makes FFT faster
+
+[~,ild1] = rceps(hrir(:,1));
+[~,ild2] = rceps(hrir(:,2));
+
+itd1 = ifft(fft(hrir(:,1),N)./(fft(ild1,N)+epsilon),N);
+itd2 = ifft(fft(hrir(:,2),N)./(fft(ild2,N)+epsilon),N);
+
+itd = [itd1,itd2];
+
+% testing - plots
+% plot(hrir(:,1)); hold on; plot(itd1)
+% plot(abs(fft(hrir(:,1)))); hold on; stem(abs(fft(itd1)))
+% plot(unwrap(angle(fft(hrir(:,1))))); hold on; stem(unwrap(angle(fft(itd1))))
+
+% testing - sounds
+% test_itd = [conv(sig,itd(:,1)),conv(sig,itd(:,1))];
+% test_hrir = [conv(sig,hrir(:,1)),conv(sig,hrir(:,1))];
+% sound(test_itd,44100)
 
 end
