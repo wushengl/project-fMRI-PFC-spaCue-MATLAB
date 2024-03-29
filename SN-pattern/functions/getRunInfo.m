@@ -25,12 +25,15 @@ function info = getRunInfo(cfg)
         runIdx = str2double(runStr);
 
         trialPerRun = cfg.blockPerRun * cfg.trialPerBlock; 
-        saveFolder = ['../data/' answer{1} '/'];
+        saveFolder = [cfg.saveDir answer{1} '/'];
 
         % check if trialOrder already exist
         trialOrderPath = [saveFolder 'trialOrder.mat'];
         if ~exist(trialOrderPath,"file")
             [trialOrder_full, blockOrder] = getTrialOrder(cfg.runNum,cfg.blockPerRun,trialPerRun);
+            if ~exist(saveFolder, 'dir')
+                mkdir(saveFolder) 
+            end
             save(trialOrderPath,"trialOrder_full","blockOrder");
             disp("Trial order file generated.")
         else

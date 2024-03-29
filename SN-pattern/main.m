@@ -15,16 +15,23 @@
 %
 % run this script once for each run, fill in the run number in dialog. 
 % There will be no break within each run (~6min), but some fixation
-% time at beginning, middle, and end of the run. 
+% time at beginning, middle, and end of the run.
+% 
 
 clear all
 clc
-addpath(genpath('/Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab'))
+addpath(genpath('/Users/wusheng/Research/Project-fMRI-PFC-spaCue'))
 cd /Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/SN-pattern/
+
+% folders
+cfg.sylbFoler = './stimuli/normalized-mono/syllables/';
+cfg.hrirFolder = './hrir/';
+cfg.saveDir = '../../data/'; 
+% might do fMRI analysis with Python, so better keep data outside matlab folder
 
 %% configuration
 
-cfg.runNum = 8; % TODO: change back to 8
+cfg.runNum = 8; 
 cfg.blockPerRun = 12;
 cfg.trialPerBlock = 4; 
 trialPerRun = cfg.blockPerRun * cfg.trialPerBlock; 
@@ -40,13 +47,10 @@ cfg.blockOrder = runInfo{6};   % blockPerRun length string array
 cfg.eyetracker = runInfo{7};   % 0/1
 cfg.runIdx = runInfo{8};       % integer number
 if ~strcmp(cfg.runMode,'task')
-    cfg.blockPerRun = 1;
+    cfg.blockPerRun = length(cfg.blockOrder);
+    cfg.trialPerBlock = 1;
 end
-
-% folders
-cfg.sylbFoler = './stimuli/normalized-mono/syllables/';
-cfg.hrirFolder = './hrir/';
-cfg.saveFolder = ['../data/' cfg.subID '/'];
+cfg.saveFolder = [cfg.saveDir cfg.subID '/']; 
 if ~exist(cfg.saveFolder, 'dir')
     mkdir(cfg.saveFolder) 
 end
@@ -75,12 +79,11 @@ cfg.blockDur = cfg.taskScreenDur + cfg.trialDur * cfg.trialPerBlock + cfg.blockI
 
 % scanner related 
 TR = 2;
-TRperTrial = cfg.trialDur/TR; % 3.5TR per trial
+TRperTrial = cfg.trialDur/TR; % 3TR per trial
 TRperBlock = cfg.blockDur/TR;
-TRperRun = TRperBlock*cfg.blockPerRun; % this is not including fixation time
+cfg.fixTime = 4*TR; 
+TRperRun = TRperBlock*cfg.blockPerRun + cfg.fixTime*3; % this is not including fixation time
 
-% fixation time setting
-cfg.fixTime = 2*TR; % TODO: change back to 4 after finish piloting
 
 % keyboard setting
 cfg.responseKeys = ["1","1!","2","2@","3","3#","4","4$","5","5%"];
@@ -92,7 +95,7 @@ responses = nan(cfg.trialNum,2);
 
 subIDrunNum = [cfg.subID '_ses-0' int2str(cfg.runIdx)];
 filename = [subIDrunNum datestr(now,'_yyyymmdd_HHMM') '.mat'];
-cfg.edf_filename = [cfg.saveFolder cfg.subID datestr(now, 'HHMM') '.edf'];
+cfg.edf_filename = [cfg.subID datestr(now, 'HHMM') '.edf'];
 save([cfg.saveFolder filename]);
 
 % display setting 
@@ -118,15 +121,10 @@ cfg.rect = rect;
 %% eyetracker setup
 
 if cfg.eyetracker 
-    cfg.vDistance = 107.5; % scanner viewing distance w/ eyetracker
-    cfg.dWidth = 41.5; % scanner display width w/ eyetracker
-    ppd = pi*rect(3) / atan(cfg.dWidth/cfg.vDistance/2) / 360; % pixels per degree
-    cfg.ppd = ppd; 
-
     el = setupEyelink(cfg,rect,cfg.edf_filename); % all initialization setup into another script
 end
 
-%% timing control -- remove this later
+%% timing control 
 
 % There're 2 options for timing control, one is to run each, record time,
 % check if time is correct (what I normally do); another is to generate
@@ -138,8 +136,8 @@ end
 blockStartTimes = (0:cfg.blockPerRun-1)*TRperBlock*TR + cfg.fixTime;
 blockStartTimes(cfg.blockPerRun/2+1:end) = blockStartTimes(cfg.blockPerRun/2+1:end) + cfg.fixTime;
 
-trialStartTimes = (0:trialPerRun-1)*TR*TRperTrial + cfg.fixTime;
-trialStartTimes(trialPerRun/2+1:end) = trialStartTimes(trialPerRun/2+1:end) + cfg.fixTime;
+%trialStartTimes = (0:trialPerRun-1)*TR*TRperTrial + cfg.fixTime;
+%trialStartTimes(trialPerRun/2+1:end) = trialStartTimes(trialPerRun/2+1:end) + cfg.fixTime;
 
 %% Prepare spatialized stimuli 
 % spaSylbs stores all spatialized syllables, so that when generating the
@@ -151,20 +149,6 @@ trialStartTimes(trialPerRun/2+1:end) = trialStartTimes(trialPerRun/2+1:end) + cf
 spaSylbs = generateSpaSylbs(cfg); 
 
 %% Start run 
-
-if cfg.eyetracker
-    % Must be offline to draw to EyeLink screen
-    Eyelink('Command', 'set_idle_mode');
-    
-    % clear tracker display and draw box at fix point
-    box = round(2.5*ppd);
-    width = rect(3);
-    height = rect(4);
-    Eyelink('Command', 'clear_screen 0')
-    Eyelink('command', 'draw_box %d %d %d %d 15', (width/2)-box, (height/2)-box, (width/2)+box, (height/2)+box);
-    
-    Eyelink('Command', 'set_idle_mode');
-end
 
 Screen('TextSize', cfg.win, cfg.textSize);
 DrawFormattedText(cfg.win, 'Waiting for scanner..', 'center','center',[255 255 255]);
@@ -181,7 +165,8 @@ runStartTime = getTrigger(cfg);
 showFixationScreen(cfg);
 
 if cfg.eyetracker
-    Eyelink('command', 'record_status_message "Trial %d"', i);
+    Eyelink('Command', 'set_idle_mode');
+    Eyelink('command', 'record_status_message "Run %d"', cfg.runIdx);
     Eyelink('StartRecording');
 end
 
@@ -212,19 +197,26 @@ for i = 1:cfg.blockPerRun
     end
     Screen('Flip', cfg.win); % show task type screen
 
-    % TODO: add more customized eyetracker message
     if cfg.eyetracker
-        Eyelink('Message','SYNCTIME');
+        Eyelink('command', 'record_status_message "Block %d"', i);
     end
     blockStartTime = GetSecs;
     WaitSecs(cfg.taskScreenDur);
 
     for j = 1:cfg.trialPerBlock
 
+        trial_idx = (i-1)*cfg.trialPerBlock + j;
+        thisTrial = cfg.trialOrder(trial_idx);
+
+        if cfg.eyetracker
+            Eyelink('Message', 'TRIALID "%d"', trial_idx);
+            Eyelink('Message','SYNCTIME');
+        end
+
         % show fixation
         DrawFormattedText(cfg.win, '+', 'center','center',[255 255 255]);
         Screen('Flip', cfg.win);
-        fprintf("Current trial: %d\n",j)
+        fprintf("Current trial: %d (%s)\n",j,thisTrial)
 
         audioOnsetTime = GetSecs;
         disp("audio start relative to block onset:")
@@ -232,14 +224,14 @@ for i = 1:cfg.blockPerRun
 
         % play audio 
         PsychPortAudio('FillBuffer', cfg.pahandle, squeeze(blockSig(j,:,:))');
-        PsychPortAudio('Start', cfg.pahandle, 1, 0, 0); % TODO: waitForStart = 0 or 1
+        PsychPortAudio('Start', cfg.pahandle, 1, 0, 0); 
 
         % response time 
         WaitSecs(cfg.trialAudDur); % now it's only taking response at response screen
         DrawFormattedText(cfg.win, 'RESPONSE', 'center','center',[255 255 255]); % to help them separate trials
         Screen('Flip', cfg.win);
         cfg.respStartTime = GetSecs; % excution moves on before audio finished
-        [responses(i,1),responses(i,2)] = getResponse(cfg); 
+        [responses(trial_idx,1),responses(trial_idx,2)] = getResponse(cfg); 
 
         while GetSecs - cfg.respStartTime < cfg.respDur
             % still show RESPONSE screen if pressed button and breaked early
