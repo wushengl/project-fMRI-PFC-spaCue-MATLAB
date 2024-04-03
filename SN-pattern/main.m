@@ -16,7 +16,7 @@
 % run this script once for each run, fill in the run number in dialog. 
 % There will be no break within each run (~6min), but some fixation
 % time at beginning, middle, and end of the run.
-% 
+% =
 
 clear all
 clc

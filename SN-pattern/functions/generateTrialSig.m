@@ -30,9 +30,9 @@ end
 
 % each syllable appear twice maximum
 %sylbPool = ["ba","da","ga","ba","da","ga"]; % TODO
-%sylbPool = ["int1", "int3", "int28", "int1", "int3", "int28"];
-sylbPool = ["ba_30_30000_10db","da_30_30000_10db","ga_30_30000_10db",...
-    "ba_30_30000_10db","da_30_30000_10db","ga_30_30000_10db"];
+sylbPool = ["int1", "int3", "int28", "int1", "int3", "int28"];
+%sylbPool = ["ba_30_30000_10db","da_30_30000_10db","ga_30_30000_10db",...
+%    "ba_30_30000_10db","da_30_30000_10db","ga_30_30000_10db"];
 ptn1_sylbs = randsample(sylbPool,cfg.sylbPerPat);
 ptn1_dirs = randsample(cfg.dirPool,cfg.sylbPerPat,true);
 
@@ -68,8 +68,8 @@ audio_dur = ptn2_onsets(end) + cfg.sylbDur;
 audio_samps = ceil(audio_dur*cfg.fs);
 trialSig = zeros(audio_samps,2);
 
-% cue_sylb = "int3";
-cue_sylb = "ba_30_30000_10db"; % TODO
+cue_sylb = "int3";
+% cue_sylb = "ba_30_30000_10db"; % TODO
 cue_dir = cfg.dirPool(2);
 cue_sig = spaSylbs.(cue_sylb+"_"+cue_dir+string(tarHemi)+"_"+spaCue);
 sylb_len = length(cue_sig);
