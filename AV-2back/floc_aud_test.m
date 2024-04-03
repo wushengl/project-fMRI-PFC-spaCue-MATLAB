@@ -1,5 +1,8 @@
 function floc_aud_test
 
+% cd BRIDGE_CENTER_PATH
+cd '/Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/AV-2back'
+
 % This function runs a few auditory stimuli from the floc task, to
 % facilitate setting levels.
 
@@ -23,21 +26,23 @@ for i = 1:numel(d2)
 end
 d = [d1;d2];
 
-allStims = Shuffle(d);
- while numel(allStims) < blocklength
-     allStims = [allStims; Shuffle(d)];size(allStims)
- end  
- allStims = allStims(1:blocklength);
+allStims = d; %Shuffle(d);
+while numel(allStims) < blocklength
+ allStims = [allStims; d];size(allStims) % Shuffle(d)
+end  
+allStims = allStims(1:blocklength);
  
 % PsychToolbox initializations
-[cfg.win, rect] = Screen('OpenWindow',0,[0 0 0]);
+screenNum=Screen('Screens');
+screenIdx = screenNum(end);
+[cfg.win, rect] = Screen('OpenWindow',screenIdx,[0 0 0]);
 cfg.freq = 44100; % Audio device frequency
 InitializePsychSound;
 cfg.pahandle = PsychPortAudio('Open', [], [], 0, cfg.freq,2);
     
 % Squelch kb input, hide cursor.
-ListenChar(2);
-HideCursor;
+ListenChar(1);
+%HideCursor;
 
 Screen('TextSize', cfg.win, 36);
 DrawFormattedText(cfg.win, '+', 'center','center',[255 255 255]);
@@ -77,8 +82,9 @@ function audStim(cfg,file)
 % columns, while PsychPortAudio wants the reverse.
 % wavread is older function, used only for running on testing room Mac -
 % otherwise change to audioread
-stim = wavread(file)';
-stim = stim / max(max(stim)); % Normalize volume.
+[stim,~] = audioread(file);
+stim = stim';
+%stim = stim / max(max(stim)); % Normalize volume.
 if size(stim,1) == 1
     stim = [stim;stim]; % make it stereo if it isn't already
 end

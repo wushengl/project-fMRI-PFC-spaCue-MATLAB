@@ -16,12 +16,13 @@
 % run this script once for each run, fill in the run number in dialog. 
 % There will be no break within each run (~6min), but some fixation
 % time at beginning, middle, and end of the run.
-% =1
+% 
 
 clear all
 clc
 addpath(genpath('/Users/wusheng/Research/Project-fMRI-PFC-spaCue'))
 cd /Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/SN-pattern/
+% add BRIDGE_CENTER_PATH here
 
 % folders
 cfg.sylbFoler = './stimuli/normalized-mono/syllables/';
@@ -57,7 +58,7 @@ end
 
 % audio setting
 cfg.fs = 44100;
-cfg.dirPool = ["15", "45", "90"];
+cfg.dirPool = ["15", "30", "90"];
 
 % trial setting
 cfg.sylbDur = 0.4;
@@ -110,10 +111,20 @@ cfg.pahandle = PsychPortAudio('Open', [], [], 0, cfg.fs, 2);
 % visual
 if cfg.device == "macbook"
     Screen('Preference','SkipSyncTests',1);
+    screenNum=Screen('Screens');
+    screenIdx = screenNum(end);
+elseif cfg.device == "scanner"
+    screenIdx = 1;
+    % use specific keyboard
+    devstring = 'Teensy Keyboard/Mouse';
+    [id,name] = GetKeyboardIndices;
+    cfg.kb = id(strcmp(name,devstring)); % strcmp returns logical array
+    if isempty(cfg.kb)
+        error('No device by that name was detected');
+    end
 end
+
 AssertOpenGL; % break if installed PTB is not based on OpenGL
-screenNum=Screen('Screens');
-screenIdx = screenNum(end);
 [cfg.win, rect] = Screen('OpenWindow',screenIdx,[0 0 0]); 
 % rect is needed for eyetracker setup, PTB init has to be before eyetracker
 cfg.rect = rect;

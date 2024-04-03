@@ -1,6 +1,11 @@
 function [response,responseTime] = getResponse(cfg)
 
-KbQueueCreate;
+if ~isnan(cfg.kb)
+    KbQueueCreate(cfg.kb); % create KbQueue at specific kb if specified
+else
+    KbQueueCreate;
+end
+
 KbQueueStart;
 anyPressed = 0;
 

@@ -12,7 +12,7 @@ function info = getRunInfo(cfg)
         trial_number = 4;
         eyetracker = 0;
         runIdx = 0;
-        trialOrder = ["SLFF";"NLLT";"SRTT";"NRLF"];
+        trialOrder = ["SLLF";"SLTF";"SRLF";"SRTF"];
         blockOrder = trialOrder;
     elseif strcmp(answer{3},'train')
         trial_number = 6;

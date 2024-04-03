@@ -11,7 +11,15 @@ function floc_scanner(subID, whichorder, device)
 %
 % 180 TRs.
 
+% --------------- 2024-04-03 WL update --------------
+% 1. remove peak normalization (stimuli rms normalized)
+% 2. switched to audioread (wavread is removed by MATLAB)
+% 3. added cd PATH at beginning to make sure it's in the right folder 
+% 4. updated save dir and filename
 
+
+% cd BRIDGE_CENTER_PATH
+cd '/Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/AV-2back'
 
 %% Specify params
 
@@ -41,7 +49,8 @@ cfg.vStimDir1 = ['faces' filesep 'faces_female' filesep]; % filesep is '/'
 cfg.vStimDir2 = ['faces' filesep 'faces_male' filesep];
 cfg.aStimDir1 = ['animal-sounds' filesep 'cat_sounds' filesep];
 cfg.aStimDir2 = ['animal-sounds' filesep 'dog_sounds' filesep];
-saveDir = ['results' filesep];
+%saveDir = ['results' filesep];
+saveDir = ['../../data/' subID filesep];
 
 % Numbers
 blocklength = 32; % 32 images per block
@@ -78,7 +87,7 @@ nBlocks = size(order,1);
 stim = cell(blocklength,nBlocks);
 responses = nan(blocklength,nBlocks,2);
 
-filename = [subID datestr(now,'_yyyymmdd_HHMM') '.mat'];
+filename = [subID '_AV2back' datestr(now,'_yyyymmdd_HHMM') '.mat'];
 edf_filename = [subID datestr(now, 'HHMM') '.edf'];
 
 save([saveDir filename]);
@@ -98,7 +107,7 @@ if cfg.eyetracker
 end
 
 % Squelch kb input, hide cursor.
-ListenChar(2);
+% ListenChar(2);
 % HideCursor; % WSL: this is dangerous lol
 
 %% Initialize and save
@@ -459,8 +468,8 @@ switch modality
         PsychPortAudio('Close', cfg.pahandle);
 end
 
-ShowCursor;
-ListenChar(0);
+% ShowCursor;
+% ListenChar(0);
 Screen('CloseAll');
 
 end
@@ -473,8 +482,9 @@ function audStim(cfg,file)
 % columns, while PsychPortAudio wants the reverse.
 % wavread is older function, used only for running on testing room Mac -
 % otherwise change to audioread 
-stim = audioread([cfg.stimDir file])'; % WSL: waveread is removed 
-stim = stim / max(max(stim)); % Normalize volume.
+[stim,~] = audioread([cfg.stimDir file]); % WSL: waveread is removed 
+stim = stim';
+% stim = stim / max(max(stim)); % WSL: all sounds are normalized in RMS
 if size(stim,1) == 1
     stim = [stim;stim]; % make it stereo if it isn't already
 end

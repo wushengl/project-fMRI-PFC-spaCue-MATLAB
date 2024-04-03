@@ -1,0 +1,39 @@
+ % All stimuli for AV-2back and SN-pattern are normalized in RMS. Here just
+% playing sounds in random order to help them adjust the volume with
+% scanner noise and make sure left and right insert phone seals are roughly
+% equally tight. 
+
+function sound_test
+% This function plays stimuli for AV-2back and SN-pattern in random order
+
+clear all
+clc
+
+addpath(genpath('/Users/wusheng/Research/Project-fMRI-PFC-spaCue'))
+cd /Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/SN-pattern/
+
+AV_cat_folder = '../AV-2back/animal-sounds/cat_sounds/';
+AV_dog_folder = '../AV-2back/animal-sounds/dog_sounds/';
+SN_sylb_folder = './stimuli/normalized-mono/syllables/';
+
+folders = [string(AV_cat_folder) string(AV_dog_folder) string(SN_sylb_folder)];
+files_all = 
+
+for folder = folders
+    disp("Now showing RMS for:")
+    disp(folder)
+    folder = char(folder);
+    files = dir([folder '*.wav']);
+    for i = 1:numel(files)
+        files(i).name = [folder files(i).name]; 
+        [sig,~] = audioread(sig_file);
+        this_rms = rms(sig);
+        fprintf("RMS for signal %s: %f\n",files(i).name,this_rms)
+    end
+end
+
+
+end
+
+
+

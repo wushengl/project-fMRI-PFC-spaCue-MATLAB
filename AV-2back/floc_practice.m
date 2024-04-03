@@ -8,6 +8,18 @@ function floc_practice(subID, modality, run)
 %   modality: Specifies sensory modality. 'a' auditory or 'v' visual
 %   run: Each modality has two sets of stimuli, 1 or 2.
 
+% --------------- 2024-04-03 WL update --------------
+% 1. remove peak normalization (stimuli rms normalized)
+% 2. switched to audioread (wavread is removed by MATLAB)
+% 3. added cd PATH at beginning to make sure it's in the right folder 
+% 4. updated save dir, but also commented save functions, no need to save
+% practice data
+% 5. added lines to open the largest index screen, e.g. if monitor
+% detected, show on monitor instead of pc screen 
+
+% cd BRIDGE_CENTER_PATH
+cd '/Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/AV-2back'
+
 % TESTING
 Screen('Preference', 'SkipSyncTests', 1);
 
@@ -45,14 +57,15 @@ cfg.vStimDir1 = ['faces' filesep 'faces_female' filesep];
 cfg.vStimDir2 = ['faces' filesep 'faces_male' filesep];
 cfg.aStimDir1 = ['animal-sounds' filesep 'cat_sounds' filesep];
 cfg.aStimDir2 = ['animal-sounds' filesep 'dog_sounds' filesep];
-saveDir = ['results' filesep];
+% saveDir = ['results' filesep];
+saveDir = ['../../data/' subID filesep];
 
 % Preallocate memory
 stim = cell(blocklength,nBlocks);
 responses = nan(blocklength,nBlocks,2);
 
 
-filename = [subID datestr(now,'_yyyymmdd_HHMM') '.mat'];
+filename = [subID '_AV2back' datestr(now,'_yyyymmdd_HHMM') '.mat'];
 % Create list of stimuli filenames
 switch modality
     case 'a'
@@ -74,7 +87,7 @@ switch modality
         d = dir([cfg.stimDir '*.bmp']);
 end
 
-save([saveDir filename]);
+%save([saveDir filename]);
 
 % PsychToolbox initializations
 switch modality
@@ -85,18 +98,20 @@ switch modality
 end
 % We need Screen for both modalities.
 % AssertOpenGL;
-[cfg.win, rect] = Screen('OpenWindow',0,[0 0 0]);
+screenNum=Screen('Screens');
+screenIdx = screenNum(end);
+[cfg.win, rect] = Screen('OpenWindow',screenIdx,[0 0 0]);
 cfg.win
 
 % Squelch kb input, hide cursor.
 ListenChar(2);
-HideCursor;
+%HideCursor;
 
 % Make sure results directory exists
-if ~exist(saveDir, 'dir')
-    mkdir(saveDir)
-end
-save([saveDir filename]);
+% if ~exist(saveDir, 'dir')
+%     mkdir(saveDir)
+% end
+%save([saveDir filename]);
 
 % Initialize a vector to tally number of n-backs for each block
 % Initialize a matrix of 2s to store correct responses per trial per block (30x4)
@@ -197,7 +212,7 @@ for b = 1:nBlocks
             WaitSecs(cfg.ITI);
         
         
-            save([saveDir filename]);
+            %save([saveDir filename]);
         end
     end    
 end
@@ -208,7 +223,7 @@ switch modality
         PsychPortAudio('Close', cfg.pahandle);
 end
 
-ShowCursor;
+%ShowCursor;
 ListenChar(0);
 Screen('CloseAll');
 
@@ -222,8 +237,9 @@ function audStim(cfg,file)
 % columns, while PsychPortAudio wants the reverse.
 % wavread is older function, used only for running on testing room Mac -
 % otherwise change to audioread
-stim = wavread([cfg.stimDir file])';
-stim = stim / max(max(stim)); % Normalize volume.
+[stim,~] = audioread(file);
+stim = stim';
+%stim = stim / max(max(stim)); % Normalize volume.
 if size(stim,1) == 1
     stim = [stim;stim]; % make it stereo if it isn't already
 end

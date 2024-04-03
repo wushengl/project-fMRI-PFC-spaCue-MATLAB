@@ -22,9 +22,12 @@ clear all
 clc
 addpath(genpath('/Users/wusheng/Research/Project-fMRI-PFC-spaCue'))
 cd /Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/SN-pattern/
+% add BRIDGE_CENTER_PATH here
+
 
 % folders
-cfg.sylbFoler = './stimuli/normalized-mono/syllables/';
+%cfg.sylbFoler = './stimuli/normalized-mono/syllables/';
+cfg.sylbFoler = './stimuli/normalized-mono/broadband/';
 cfg.hrirFolder = './hrir/';
 cfg.saveDir = '../../data/'; 
 % might do fMRI analysis with Python, so better keep data outside matlab folder
@@ -57,7 +60,7 @@ end
 
 % audio setting
 cfg.fs = 44100;
-cfg.dirPool = ["15", "45", "90"];
+cfg.dirPool = ["15", "30", "90"];
 
 % trial setting
 cfg.sylbDur = 0.4;
@@ -110,10 +113,21 @@ cfg.pahandle = PsychPortAudio('Open', [], [], 0, cfg.fs, 2);
 % visual
 if cfg.device == "macbook"
     Screen('Preference','SkipSyncTests',1);
+    screenNum=Screen('Screens');
+    screenIdx = screenNum(end);
+    cfg.kb = nan;
+elseif cfg.device == "scanner"
+    screenIdx = 1;
+    % use specific keyboard
+    devstring = 'Teensy Keyboard/Mouse';
+    [id,name] = GetKeyboardIndices;
+    cfg.kb = id(strcmp(name,devstring)); % strcmp returns logical array
+    if isempty(cfg.kb)
+        error('No device by that name was detected');
+    end
 end
+
 AssertOpenGL; % break if installed PTB is not based on OpenGL
-screenNum=Screen('Screens');
-screenIdx = screenNum(end);
 [cfg.win, rect] = Screen('OpenWindow',screenIdx,[0 0 0]); 
 % rect is needed for eyetracker setup, PTB init has to be before eyetracker
 cfg.rect = rect;

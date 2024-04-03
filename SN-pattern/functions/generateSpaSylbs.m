@@ -7,9 +7,10 @@ function spaSylbs = generateSpaSylbs(cfg)
 sigLen = double(cfg.sylbDur * cfg.fs);
 
 % load mono syllables 
-sigPool = ["ba","da","ga"];
+% sigPool = ["ba","da","ga"]; 
+sigPool = ["int1","int3","int28","ba_30_30000_10db","da_30_30000_10db","ga_30_30000_10db"]; 
 for sylb = sigPool
-    sig_file = [cfg.sylbFoler char(sylb) '_M_rms0d05_350ms.wav'];
+    sig_file = [cfg.sylbFoler char(sylb) '_F_rms0d05_350ms.wav']; % TODO: back to M
     [sig,~] = audioread(sig_file);
     sigs.(sylb) = sig;
 end
@@ -51,7 +52,42 @@ for dir = cfg.dirPool
     end
 end
 
+%% adjust ITD level to be the same as better ear in ILD
+% ITD has magnitude response of 1 across all frequencies, while ILD has
+% same magnitude response ans HRTF, where some of the frequencies are
+% attenuated (and maybe some are amplified). This results in difference in
+% level in the spatialized stimuli with diffrent spatial cues, and it's
+% dependent on the frequency content of the stimuli. 
+% So here I'm adding some code to compensate for that. I'm making ITD both
+% channel having the same level as the louder ear in HRTF/ILD condition.
+% And I'm separating it so that if we decided we don't want to compensate
+% for that anymore, it'd be easy to not run this component at all. 
+
+doAttITD = true;
+
+if doAttITD
+    for dir = cfg.dirPool
+        for hemi = ["L","R"]
+            for sylb = sigPool
+                hrtf_key = sylb + "_" + dir + hemi + "_HRTF";
+                itd_key = sylb + "_" + dir + hemi + "_ITD";
+
+                hrtf_sig = spaSylbs.(hrtf_key);
+                itd_sig = spaSylbs.(itd_key);
+
+                better_ear_rms = max(rms(hrtf_sig));
+
+                itd_sig_ch1 = itd_sig(:,1)./rms(itd_sig(:,1)).*better_ear_rms;
+                itd_sig_ch2 = itd_sig(:,2)./rms(itd_sig(:,2)).*better_ear_rms;
+                spaSylbs.(itd_key) = [itd_sig_ch1,itd_sig_ch2];
+            end
+        end
+    end
 end
+
+end
+
+
 
 %% functions to obtain frequency-specific ILD and ITD
 
