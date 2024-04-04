@@ -21,7 +21,7 @@ function floc_scanner(subID, whichorder, device)
 % cd BRIDGE_CENTER_PATH
 %cd '/Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/AV-2back'
 cd C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB\SN-pattern
-
+KbName('UnifyKeyNames');
 %% Specify params
 
 % Setup
@@ -583,8 +583,8 @@ while 1
     end
     % If a key is pressed
     if numel(find(firstPress)) == 1
-        k = find(firstPress); % Keycode of pressed key
-        if pressed && ismember(k, [KbName(cfg.triggerKey1) KbName(cfg.triggerKey2)])
+        k = KbName(find(firstPress)); % Keycode of pressed key
+        if pressed && any(ismember(k, [cfg.triggerKey1, cfg.triggerKey2]))
             try
                 run_start_time = firstPress(k)
                 break
