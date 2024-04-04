@@ -96,7 +96,7 @@ cfg.escapeKey = ["q","ESCAPE"]; % KbName('ESCAPE')
 % Preallocate memory and save workspace
 responses = nan(cfg.trialNum,2);
 
-subIDrunNum = [cfg.subID '_ses-0' int2str(cfg.runIdx)];
+subIDrunNum = [cfg.subID '_ses-01_run-0' int2str(cfg.runIdx)]; % need update ses if split later
 filename = [subIDrunNum datestr(now,'_yyyymmdd_HHMM') '.mat'];
 cfg.edf_filename = [cfg.subID datestr(now, 'HHMM') '.edf'];
 save([cfg.saveFolder filename]);

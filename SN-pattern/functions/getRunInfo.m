@@ -42,7 +42,7 @@ function info = getRunInfo(cfg)
         end
         trial_number = trialPerRun;
         trialOrder = trialOrder_full(:,runIdx);
-        eyetracker = 0; % TODO
+        eyetracker = 1; % TODO
         
     end
 
