@@ -19,7 +19,8 @@ function floc_scanner(subID, whichorder, device)
 
 
 % cd BRIDGE_CENTER_PATH
-cd '/Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/AV-2back'
+%cd '/Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/AV-2back'
+cd C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB\SN-pattern
 
 %% Specify params
 
@@ -606,7 +607,8 @@ function kbnum = getKeyboardID(device)
 % Which string to look for?
 switch device
     case 'scanner'
-        devstring = 'Teensy Keyboard/Mouse';
+        %devstring = 'Teensy Keyboard/Mouse';
+        devstring = 'Keyboard';
     case 'laptop'
         devstring = 'Apple Internal Keyboard / Trackpad';
     case 'bay1desktop'
@@ -615,17 +617,23 @@ end
 
 [id,name] = GetKeyboardIndices;
 
-kbnum = 0;
-for i = 1:numel(id) % numel returns number of element
-    if strcmp(name{i}, devstring)
-        kbnum = id(i);
-        break
-    end
-end
 
-if kbnum==0 % error checking
+%kbnum = 0;
+% for i = 1:numel(id) % numel returns number of element
+%     if strcmp(name{i}, devstring)
+%         kbnum = id(i);
+%         break
+%     end
+% end
+kbnum = id(strcmp(name,devstring));
+
+if isempty(kbnum)
     error('No device by that name was detected');
 end
+
+% if kbnum==0 % error checking
+%     error('No device by that name was detected');
+% end
 
 end
 

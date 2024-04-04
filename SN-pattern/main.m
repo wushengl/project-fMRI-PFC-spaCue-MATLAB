@@ -3,7 +3,7 @@
 % Task info:
 % - each trial could be spatial/non-spatial task 
 % - each trial could be presented from left/right hemisphere
-% - each trial could be spatialized with HRTF/ILD/ITD
+% - each trial could be spatialized with HRTF/ILD/ITD=====
 % - 12 conditions (2 task type * 2 hemisphere * 3 spatial cue)
 %
 % - each trial contains 2 sequences with 4 syllables in each sequence 
@@ -20,10 +20,11 @@
 
 clear all
 clc
-addpath(genpath('/Users/wusheng/Research/Project-fMRI-PFC-spaCue'))
-cd /Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/SN-pattern/
+%addpath(genpath('/Users/wusheng/Research/Project-fMRI-PFC-spaCue'))
+%cd /Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/SN-pattern/
 % add BRIDGE_CENTER_PATH here
-
+addpath(genpath('C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB'))
+cd C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB\SN-pattern
 
 % folders
 %cfg.sylbFoler = './stimuli/normalized-mono/syllables/';
@@ -117,9 +118,10 @@ if cfg.device == "macbook"
     screenIdx = screenNum(end);
     cfg.kb = nan;
 elseif cfg.device == "scanner"
+    Screen('Preference','SkipSyncTests',1);
     screenIdx = 1;
     % use specific keyboard
-    devstring = 'Teensy Keyboard/Mouse';
+    devstring = 'Keyboard'; % 'Teensy Keyboard/Mouse'
     [id,name] = GetKeyboardIndices;
     cfg.kb = id(strcmp(name,devstring)); % strcmp returns logical array
     if isempty(cfg.kb)
