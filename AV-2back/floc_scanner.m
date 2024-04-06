@@ -21,7 +21,7 @@ function floc_scanner(subID, whichorder, device)
 % cd BRIDGE_CENTER_PATH
 cd '/Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/AV-2back'
 %cd C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB\SN-pattern
-KbName('UnifyKeyNames');
+%KbName('UnifyKeyNames');
 %% Specify params
 
 % Setup
@@ -584,7 +584,7 @@ while 1
     % If a key is pressed
     if numel(find(firstPress)) == 1
         k = KbName(find(firstPress)); % Keycode of pressed key
-        if pressed && any(ismember(k, [cfg.triggerKey1, cfg.triggerKey2]))
+        if pressed && any(ismember(k, [string(cfg.triggerKey1), string(cfg.triggerKey2)]))
             try
                 run_start_time = firstPress(k)
                 break
@@ -617,7 +617,6 @@ end
 
 [id,name] = GetKeyboardIndices;
 
-
 %kbnum = 0;
 % for i = 1:numel(id) % numel returns number of element
 %     if strcmp(name{i}, devstring)
@@ -625,15 +624,17 @@ end
 %         break
 %     end
 % end
+
+% if kbnum==0 % error checking
+%     error('No device by that name was detected');
+% end
+
 kbnum = id(strcmp(name,devstring));
 
 if isempty(kbnum)
     error('No device by that name was detected');
 end
 
-% if kbnum==0 % error checking
-%     error('No device by that name was detected');
-% end
 
 end
 
