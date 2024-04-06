@@ -19,8 +19,8 @@ function floc_scanner(subID, whichorder, device)
 
 
 % cd BRIDGE_CENTER_PATH
-%cd '/Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/AV-2back'
-cd C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB\SN-pattern
+cd '/Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/AV-2back'
+%cd C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB\SN-pattern
 KbName('UnifyKeyNames');
 %% Specify params
 
@@ -51,7 +51,7 @@ cfg.vStimDir2 = ['faces' filesep 'faces_male' filesep];
 cfg.aStimDir1 = ['animal-sounds' filesep 'cat_sounds' filesep];
 cfg.aStimDir2 = ['animal-sounds' filesep 'dog_sounds' filesep];
 %saveDir = ['results' filesep];
-saveDir = ['../../data/' subID filesep];
+saveDir = ['../data/' subID filesep];
 
 % Numbers
 blocklength = 32; % 32 images per block

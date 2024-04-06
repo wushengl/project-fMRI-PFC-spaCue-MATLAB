@@ -1,4 +1,4 @@
-function trialSig = generateTrialSig(cfg,thisTrial,spaSylbs)
+function trialSig = generateTrialSig(cfg,thisTrial,spaSylbs,doAudCue)
 % This function use spatialized syllables, create audio signal for a trial,
 % where each trial contains 2 patterns (each contains 4 syllables).
 % The taskType, tarDir, isTar should be read from thisTrial
@@ -37,7 +37,7 @@ ptn1_sylbs = randsample(sylbPool,cfg.sylbPerPat);
 ptn1_dirs = randsample(cfg.dirPool,cfg.sylbPerPat,true);
 
 if taskType == 'S'
-    ptn2_sylbs = ptn1_sylbs; % definately not correlated with ptn2_dirs
+    ptn2_sylbs = ptn1_sylbs; % definately not correlate with ptn2_dirs
     if isTar == 'T'
         ptn2_dirs = ptn1_dirs;
     else
@@ -50,6 +50,9 @@ elseif taskType == 'N'
     else
         ptn2_sylbs = replaceLaterItem(ptn1_sylbs,sylbPool,cfg);
     end
+else % passive task
+    ptn2_dirs = replaceLaterItem(ptn1_dirs,cfg.dirPool,cfg);
+    ptn2_sylbs = replaceLaterItem(ptn1_sylbs,sylbPool,cfg);
 end
 
 
@@ -58,7 +61,11 @@ end
 % playing cue sound. 
 
 % compute corresponding onset times
-cue_offset = cfg.sylbDur + cfg.cue2tarIntv;
+if doAudCue
+    cue_offset = cfg.sylbDur + cfg.cue2tarIntv;
+else
+    cue_offset = 0;
+end
 ptn1_onsets = cue_offset + (0:cfg.sylbPerPat-1)*(cfg.sylbDur + cfg.sylbIntv);
 ptn2_onsets = ptn1_onsets(end) + cfg.sylbDur + cfg.pat2patIntv + ...
     (0:cfg.sylbPerPat-1)*(cfg.sylbDur + cfg.sylbIntv);
@@ -73,7 +80,11 @@ cue_sylb = "int3";
 cue_dir = cfg.dirPool(2);
 cue_sig = spaSylbs.(cue_sylb+"_"+cue_dir+string(tarHemi)+"_"+spaCue);
 sylb_len = length(cue_sig);
-trialSig(1:sylb_len,:) = cue_sig; 
+
+
+if doAudCue
+    trialSig(1:sylb_len,:) = cue_sig; 
+end
 
 % we don't have any overlap of signals in this task, so simply place those
 % syllables at their locations without adding all signals (need to pad all)
@@ -91,8 +102,8 @@ for s = 1:cfg.sylbPerPat
     this_ptn1_onset = ceil(ptn1_onsets(s)*cfg.fs);
     this_ptn2_onset = ceil(ptn2_onsets(s)*cfg.fs);
 
-    trialSig(this_ptn1_onset:this_ptn1_onset+sylb_len-1,:) = this_ptn1_sig;
-    trialSig(this_ptn2_onset:this_ptn2_onset+sylb_len-1,:) = this_ptn2_sig;
+    trialSig(this_ptn1_onset+1:this_ptn1_onset+sylb_len,:) = this_ptn1_sig;
+    trialSig(this_ptn2_onset+1:this_ptn2_onset+sylb_len,:) = this_ptn2_sig;
 end
 
 end

@@ -1,42 +1,47 @@
 % Script for running the Spatial and Non-spatial pattern matching task.
 %
 % Task info:
-% - each trial could be spatial/non-spatial task 
+% - each trial could be spatial/non-spatial/passive task 
 % - each trial could be presented from left/right hemisphere
 % - each trial could be spatialized with HRTF/ILD/ITD=====
-% - 12 conditions (2 task type * 2 hemisphere * 3 spatial cue)
+% - 18 conditions (3 task type * 2 hemisphere * 3 spatial cue)
 %
 % - each trial contains 2 sequences with 4 syllables in each sequence 
 % - each syllable could be presented from 3 possible location in that hemi
 % - each syllable could be either BA, DA, GA 
 %
-% The whole task has 8 runs, each run will contain 12 blocks, 
-% each block is ~25sec, with only 1 condition, and 4 trials.
+% - SPATIAL: response when repeating spatial location pattern
+% - NONSPATIAL: response when repeating syllable sequences 
+% - PASSIVE: response at end of trial all the time
+%
+% The whole task has 8 runs, each run will contain 18 blocks, 
+% each block is ~25sec(with interval), with only 1 condition, and 4 trials.
 %
 % run this script once for each run, fill in the run number in dialog. 
 % There will be no break within each run (~6min), but some fixation
 % time at beginning, middle, and end of the run.
-% =
+% 
 
 clear all
 clc
-%addpath(genpath('/Users/wusheng/Research/Project-fMRI-PFC-spaCue'))
-%cd /Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/SN-pattern/
-% add BRIDGE_CENTER_PATH here
-addpath(genpath('C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB'))
-cd C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB\SN-pattern
+
+addpath(genpath('/Users/wusheng/Research/Project-fMRI-PFC-spaCue'))
+cd /Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/SN-pattern/
+% BRIDGE_CENTER_PATH here
+%addpath(genpath('C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB'))
+%cd C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB\SN-pattern
 
 % folders
 %cfg.sylbFoler = './stimuli/normalized-mono/syllables/';
 cfg.sylbFoler = './stimuli/normalized-mono/broadband/';
 cfg.hrirFolder = './hrir/';
-cfg.saveDir = '../../data/'; 
+cfg.saveDir = '../data/'; 
 % might do fMRI analysis with Python, so better keep data outside matlab folder
 
 %% configuration
 
 cfg.runNum = 8; 
-cfg.blockPerRun = 12;
+cfg.blockPerRun = 18;
 cfg.trialPerBlock = 4; 
 trialPerRun = cfg.blockPerRun * cfg.trialPerBlock; 
 runInfo = getRunInfo(cfg); 
@@ -68,13 +73,23 @@ cfg.sylbDur = 0.4;
 cfg.cue2tarIntv = 0.5;
 cfg.sylbIntv = 0;
 cfg.pat2patIntv = 0.4;
-cfg.respDur = 1.5;
 cfg.sylbPerPat = 4;
 cfg.patPerTrial = 2;
-cfg.trialDur = cfg.sylbDur + cfg.cue2tarIntv + ...
-    cfg.sylbDur*cfg.sylbPerPat*cfg.patPerTrial + cfg.pat2patIntv + cfg.respDur;
+
+doAudCue = false;
+if doAudCue
+    cfg.respDur = 1.5;
+    cfg.trialDur = cfg.sylbDur + cfg.cue2tarIntv + ...
+        cfg.sylbDur*cfg.sylbPerPat*cfg.patPerTrial + cfg.pat2patIntv + cfg.respDur;
+    % 0.4(cue) + 0.5 + 0.4*4*2 (pattern*2) + 0.4 + 1.5 = 6s per trial
+else
+    cfg.respDur = 1.4;
+    cfg.trialDur = cfg.sylbDur*cfg.sylbPerPat*cfg.patPerTrial + cfg.pat2patIntv + cfg.respDur;
+    % 0.4*4*2 (pattern*2) + 0.4 + 1.4 = 5s per trial
+end
+
 cfg.trialAudDur = cfg.trialDur - cfg.respDur;
-% 0.4(cue) + 0.5 + 0.4*4*2 (pattern*2) + 0.4 + 1.5 = 6s per trial
+
 
 % block setting 
 cfg.taskScreenDur = 1.0;
@@ -86,8 +101,7 @@ TR = 2;
 TRperTrial = cfg.trialDur/TR; % 3TR per trial
 TRperBlock = cfg.blockDur/TR;
 cfg.fixTime = 4*TR; 
-TRperRun = TRperBlock*cfg.blockPerRun + cfg.fixTime*3; % this is not including fixation time
-
+TRperRun = TRperBlock*cfg.blockPerRun - cfg.blockIntv/TR + (cfg.fixTime/TR)*3; % this is not including fixation time
 
 % keyboard setting
 cfg.responseKeys = ["1","1!","2","2@","3","3#","4","4$","5","5%"];
@@ -193,7 +207,9 @@ for i = 1:cfg.blockPerRun
     thisBlockType = char(cfg.blockOrder(i));
     fprintf("Current block: %d\n",i)
     fprintf("Block type: %s\n",thisBlockType)
-    drawTasktypeScreen(cfg,thisBlockType(1),i);
+    drawTasktypeScreen(cfg,thisBlockType,i);
+    thisTaskType = thisBlockType(1);
+    thisTarDir = thisBlockType(2);
 
     % prep audio for the entire block
     blockSig_dur = cfg.trialDur*cfg.trialPerBlock;
@@ -203,7 +219,7 @@ for i = 1:cfg.blockPerRun
     for j = 1:cfg.trialPerBlock
         trial_idx = (i-1)*cfg.trialPerBlock + j;
         thisTrial = char(cfg.trialOrder(trial_idx));
-        thisTrialSig = generateTrialSig(cfg,thisTrial,spaSylbs); 
+        thisTrialSig = generateTrialSig(cfg,thisTrial,spaSylbs,doAudCue); 
         blockSig(j,:,:) = thisTrialSig;
     end
 
@@ -230,7 +246,26 @@ for i = 1:cfg.blockPerRun
         end
 
         % show fixation
-        DrawFormattedText(cfg.win, '+', 'center','center',[255 255 255]);
+        
+        switch thisTarDir
+            case 'L'
+                text2 = sprintf('<');
+            case 'R'
+                text2 = sprintf('>');
+        end
+
+        switch thisTaskType
+            case 'S'
+                text1 = sprintf('LOCATION');
+            case 'N'
+                text1 = sprintf('CONTENT');
+            case 'P'
+                text1 = sprintf('PASSIVE');
+                text2 = sprintf('<>');
+        end
+
+        DrawFormattedText(cfg.win, text1, 'center',(cfg.rect(4)/2 - 20),[255 255 255]);
+        DrawFormattedText(cfg.win, text2, 'center',(cfg.rect(4)/2 + 30),[255 255 255]);
         Screen('Flip', cfg.win);
         fprintf("Current trial: %d (%s)\n",j,thisTrial)
 
@@ -278,6 +313,9 @@ showFixationScreen(cfg);
 while GetSecs - trialEndTime < cfg.fixTime
     % Wait
 end
+
+DrawFormattedText(cfg.win, 'SAVING DATA...', 'center', 'center',[255 255 255]);
+Screen('Flip', cfg.win);
 
 if cfg.eyetracker
     Eyelink('StopRecording');

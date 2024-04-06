@@ -17,7 +17,7 @@ function [trialOrder, blockOrder] = getTrialOrder(runNum,blockPerRun,trialPerRun
 % 'T' for contains target, 'F' for no target 
 
 % create list of all possible conditions 
-taskPool = ["S","N"];
+taskPool = ["S","N","P"];
 dirPool = ["L","R"];
 spaCuePool = ["F","L","T"];
 
