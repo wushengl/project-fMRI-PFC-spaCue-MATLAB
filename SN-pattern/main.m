@@ -3,7 +3,7 @@
 % Task info:
 % - each trial could be spatial/non-spatial/passive task 
 % - each trial could be presented from left/right hemisphere
-% - each trial could be spatialized with HRTF/ILD/ITD=====
+% - each trial could be spatialized with HRTF/ILD/ITD
 % - 18 conditions (3 task type * 2 hemisphere * 3 spatial cue)
 %
 % - each trial contains 2 sequences with 4 syllables in each sequence 
@@ -27,9 +27,14 @@ clc
 
 addpath(genpath('/Users/wusheng/Research/Project-fMRI-PFC-spaCue'))
 cd /Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/SN-pattern/
+
 % BRIDGE_CENTER_PATH here
 %addpath(genpath('C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB'))
 %cd C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB\SN-pattern
+
+% booth3 windows-pc here
+%addpath(genpath('E:\Experiments\Wusheng\project-fMRI-PFC-spaCue-MATLAB'))
+%cd E:\Experiments\Wusheng\project-fMRI-PFC-spaCue-MATLAB\SN-pattern
 
 % folders
 %cfg.sylbFoler = './stimuli/normalized-mono/syllables/';

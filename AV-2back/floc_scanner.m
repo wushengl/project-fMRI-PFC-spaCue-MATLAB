@@ -18,18 +18,26 @@ function floc_scanner(subID, whichorder, device)
 % 4. updated save dir and filename
 
 
-% cd BRIDGE_CENTER_PATH
-cd '/Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/AV-2back'
-%cd C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB\SN-pattern
-%KbName('UnifyKeyNames');
+
+%cd '/Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/AV-2back'
+
+% BRIDGE_CENTER_PATH
+%cd 'C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB\AV-2back'
+
+% booth3 path
+cd 'E:\Experiments\Wusheng\project-fMRI-PFC-spaCue-MATLAB\AV-2back'
+
+KbName('UnifyKeyNames');
+
 %% Specify params
 
 % Setup
 cfg.kb = getKeyboardID(device)
 switch device
     case 'scanner'
-        cfg.screen = 1;
-        cfg.eyetracker = 1;
+        %Screen('Preference', 'SkipSyncTests', 1);
+        cfg.screen = 1; 
+        cfg.eyetracker = 1;  
     case 'laptop'
         % TESTING/PRACTICE
         Screen('Preference', 'SkipSyncTests', 1);
@@ -397,7 +405,7 @@ for b = 1:nBlocks
             switch modality
                 case {'a', 'A'}
                     audStim(cfg,fname);
-                    cfg.stimEndTime = GetSecs;
+                    cfg.stimEndTime = GetSecs; % TODO: this might be incorrect
                 case {'v','V'}
                     visStim(cfg,fname);
                     cfg.stimEndTime = GetSecs;
@@ -530,8 +538,10 @@ while (GetSecs - cfg.stimEndTime < cfg.timeoutTime)
                 switch k
                     case {KbName(cfg.repeatKey1), KbName(cfg.repeatKey2)}
                         r = 1;
+                        fprintf("key %d pressed\n",r)
                     case {KbName(cfg.newKey1), KbName(cfg.newKey2)}
                         r = 2;
+                        fprintf("key %d pressed\n",r)
                 end
                 responses(1,1,1) = r;
                 responses(1,1,2) = firstPress(k) - cfg.stimEndTime;
@@ -587,6 +597,7 @@ while 1
         if pressed && any(ismember(k, [string(cfg.triggerKey1), string(cfg.triggerKey2)]))
             try
                 run_start_time = firstPress(k)
+                fprintf("trigger key pressed at %d\n",run_start_time)
                 break
             catch
                 'KbQueue failure'
