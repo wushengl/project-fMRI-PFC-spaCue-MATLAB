@@ -260,7 +260,7 @@ for i = 1:cfg.blockPerRun
             case 'N'
                 text1 = sprintf('CONTENT');
             case 'P'
-                text1 = sprintf('PASSIVE');
+                text1 = sprintf('RELAX');
                 text2 = sprintf('<>');
         end
 

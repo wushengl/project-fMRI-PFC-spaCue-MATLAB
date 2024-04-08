@@ -12,11 +12,11 @@ end
 
 switch taskType
     case 'S'
-        text2 = sprintf('SPATIAL TASK');
+        text2 = sprintf('LOCATION');
     case 'N'
-        text2 = sprintf('NONSPATIAL TASK');
+        text2 = sprintf('CONTENT');
     case 'P'
-        text2 = sprintf('PASSIVE');
+        text2 = sprintf('RELAX');
         text3 = sprintf('<>');
 end
 
