@@ -41,7 +41,7 @@ switch device
     case 'laptop'
         % TESTING/PRACTICE
         Screen('Preference', 'SkipSyncTests', 1);
-        cfg.screen = 1;
+        cfg.screen = 0;
         cfg.eyetracker = 0;
     case 'bay1desktop'
         % TESTING
@@ -533,7 +533,7 @@ while (GetSecs - cfg.stimEndTime < cfg.timeoutTime)
     % If a key is pressed
     if numel(find(firstPress)) == 1
         k = find(firstPress); % Keycode of pressed key
-        if pressed && ismember(k, [KbName(cfg.repeatKey1) KbName(cfg.newKey1) KbName(cfg.repeatKey2) KbName(cfg.newKey2)])
+        if pressed && ismember(k, [KbName(cfg.repeatKey1) KbName(cfg.newKey1) KbName(cfg.repeatKey2) KbName(cfg.newKey2) cfg.escapeKey])
             try
                 switch k
                     case {KbName(cfg.repeatKey1), KbName(cfg.repeatKey2)}
@@ -542,6 +542,9 @@ while (GetSecs - cfg.stimEndTime < cfg.timeoutTime)
                     case {KbName(cfg.newKey1), KbName(cfg.newKey2)}
                         r = 2;
                         fprintf("key %d pressed\n",r)
+                    case {cfg.escapeKey}
+                        PsychPortAudio('Close', cfg.pahandle);
+                        Screen('CloseAll');
                 end
                 responses(1,1,1) = r;
                 responses(1,1,2) = firstPress(k) - cfg.stimEndTime;
