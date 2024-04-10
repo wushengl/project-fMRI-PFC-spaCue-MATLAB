@@ -63,7 +63,7 @@ cfg.runIdx = runInfo{8};       % integer number
 if ~strcmp(cfg.runMode,'task')
     cfg.blockPerRun = length(cfg.blockOrder);
     cfg.trialPerBlock = 1;
-end=
+end
 cfg.saveFolder = [cfg.saveDir cfg.subID '/']; 
 if ~exist(cfg.saveFolder, 'dir')
     mkdir(cfg.saveFolder) 
