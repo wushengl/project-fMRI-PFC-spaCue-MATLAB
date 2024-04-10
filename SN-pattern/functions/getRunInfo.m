@@ -15,10 +15,10 @@ function info = getRunInfo(cfg)
         trialOrder = ["SLLF";"SLTF";"SRLF";"SRTF"];
         blockOrder = trialOrder;
     elseif strcmp(answer{3},'train')
-        trial_number = 6;
+        trial_number = 8;
         eyetracker = 0;
         runIdx = 0;
-        trialOrder = ["SLFF";"NLFT";"SRFT";"NRFF";"SLFT";"NLFF";"SRFF";"NRFT"];
+        trialOrder = ["SLFF";"NLFT";"SRFT";"PRFF";"SLFT";"NLFF";"PRFF";"NRFT"];
         blockOrder = trialOrder;
     else 
         runStr = inputdlg("Run number:","Run setting",[1 60],{'1'});

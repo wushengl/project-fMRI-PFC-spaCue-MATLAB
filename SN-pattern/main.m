@@ -63,7 +63,7 @@ cfg.runIdx = runInfo{8};       % integer number
 if ~strcmp(cfg.runMode,'task')
     cfg.blockPerRun = length(cfg.blockOrder);
     cfg.trialPerBlock = 1;
-end
+end=
 cfg.saveFolder = [cfg.saveDir cfg.subID '/']; 
 if ~exist(cfg.saveFolder, 'dir')
     mkdir(cfg.saveFolder) 
@@ -99,6 +99,9 @@ cfg.trialAudDur = cfg.trialDur - cfg.respDur;
 % block setting 
 cfg.taskScreenDur = 1.0;
 cfg.blockIntv = 4.0;
+if ~strcmp(cfg.runMode,'task')
+    cfg.blockIntv = 1.0;
+end
 cfg.blockDur = cfg.taskScreenDur + cfg.trialDur * cfg.trialPerBlock + cfg.blockIntv;
 
 % scanner related 
@@ -106,6 +109,9 @@ TR = 2;
 TRperTrial = cfg.trialDur/TR; % 3TR per trial
 TRperBlock = cfg.blockDur/TR;
 cfg.fixTime = 4*TR; 
+if ~strcmp(cfg.runMode,'task')
+    cfg.fixTime = 1*TR; 
+end
 TRperRun = TRperBlock*cfg.blockPerRun - cfg.blockIntv/TR + (cfg.fixTime/TR)*3; % this is not including fixation time
 
 % keyboard setting
@@ -140,7 +146,7 @@ elseif cfg.device == "scanner"
     Screen('Preference','SkipSyncTests',1);
     screenIdx = 1;
     % use specific keyboard
-    devstring = 'Keyboard'; % 'Teensy Keyboard/Mouse'
+    devstring = 'Keyboard'; % 'Teensy Keyboard/Mouse'=
     [id,name] = GetKeyboardIndices;
     cfg.kb = id(strcmp(name,devstring)); % strcmp returns logical array
     if isempty(cfg.kb)
