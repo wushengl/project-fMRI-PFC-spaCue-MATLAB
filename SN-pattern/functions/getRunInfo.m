@@ -41,6 +41,7 @@ function info = getRunInfo(cfg)
             disp("Trial order file loaded.")
         end
         trial_number = trialPerRun;
+        blockOrder = blockOrder(:,runIdx);
         trialOrder = trialOrder_full(:,runIdx);
         eyetracker = 1; 
         

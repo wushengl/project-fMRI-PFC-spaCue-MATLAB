@@ -20,17 +20,17 @@
 % run this script once for each run, fill in the run number in dialog. 
 % There will be no break within each run (~6min), but some fixation
 % time at beginning, middle, and end of the run.
-% 
+% ====
 
 clear all
 clc
 
-addpath(genpath('/Users/wusheng/Research/Project-fMRI-PFC-spaCue'))
-cd /Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/SN-pattern/
+%addpath(genpath('/Users/wusheng/Research/Project-fMRI-PFC-spaCue'))
+%cd /Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/SN-pattern/
 
 % BRIDGE_CENTER_PATH here
-%addpath(genpath('C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB'))
-%cd C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB\SN-pattern
+addpath(genpath('C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB'))
+cd C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB\SN-pattern
 
 % booth3 windows-pc here
 %addpath(genpath('E:\Experiments\Wusheng\project-fMRI-PFC-spaCue-MATLAB'))
@@ -99,6 +99,9 @@ cfg.trialAudDur = cfg.trialDur - cfg.respDur;
 % block setting 
 cfg.taskScreenDur = 1.0;
 cfg.blockIntv = 4.0;
+if ~strcmp(cfg.runMode,'task')
+    cfg.blockIntv = 1.0;
+end
 cfg.blockDur = cfg.taskScreenDur + cfg.trialDur * cfg.trialPerBlock + cfg.blockIntv;
 
 % scanner related 
@@ -106,6 +109,9 @@ TR = 2;
 TRperTrial = cfg.trialDur/TR; % 3TR per trial
 TRperBlock = cfg.blockDur/TR;
 cfg.fixTime = 4*TR; 
+if ~strcmp(cfg.runMode,'task')
+    cfg.fixTime = 1*TR; 
+end
 TRperRun = TRperBlock*cfg.blockPerRun - cfg.blockIntv/TR + (cfg.fixTime/TR)*3; % this is not including fixation time
 
 % keyboard setting
@@ -337,3 +343,4 @@ save([cfg.saveFolder filename]);
 
 closeNcleanup(cfg)
 
+222

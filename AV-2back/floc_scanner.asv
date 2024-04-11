@@ -19,10 +19,10 @@ function floc_scanner(subID, whichorder, device)
 
 
 
-cd '/Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/AV-2back'
+%cd '/Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/AV-2back'
 
 % BRIDGE_CENTER_PATH
-%cd 'C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB\AV-2back'
+cd 'C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB\AV-2back'
 
 % booth3 path
 %cd 'E:\Experiments\Wusheng\project-fMRI-PFC-spaCue-MATLAB\AV-2back'
@@ -41,7 +41,7 @@ switch device
     case 'laptop'
         % TESTING/PRACTICE
         Screen('Preference', 'SkipSyncTests', 1);
-        cfg.screen = 1;
+        cfg.screen = 0;
         cfg.eyetracker = 0;
     case 'bay1desktop'
         % TESTING
@@ -75,13 +75,13 @@ TRperblock = 21; % 32 images in 40 seconds, plus 1 for start-of-block instructio
 cfg.blockTime = TR*TRperblock;
 
 % Keys
-cfg.repeatKey1 = '1';
-cfg.repeatKey2 = '1!';
-cfg.newKey1 = '2';
-cfg.newKey2 = '2@';
-cfg.triggerKey1 = '=';
-cfg.triggerKey2 = '=+';
-cfg.escapeKey = KbName('ESCAPE'); % this might only be useful in while loop
+cfg.repeatKey1 = "1"; %'1';
+cfg.repeatKey2 = "1!"; % '1!';
+cfg.newKey1 = "2"; % '2';
+cfg.newKey2 = "2@"; % '2@';
+cfg.triggerKey1 = "="; % '=';
+cfg.triggerKey2 = "=+"; %'=+';
+cfg.escapeKey = "ESCAPE"; % KbName('ESCAPE'); % this might only be useful in while loop
 
 % Get block details specifications
 f = fopen(order_file);
@@ -405,7 +405,7 @@ for b = 1:nBlocks
             switch modality
                 case {'a', 'A'}
                     audStim(cfg,fname);
-                    cfg.stimEndTime = GetSecs; % TODO: this might be incorrect
+                    cfg.stimEndTime = GetSecs; 
                 case {'v','V'}
                     visStim(cfg,fname);
                     cfg.stimEndTime = GetSecs;
@@ -533,15 +533,19 @@ while (GetSecs - cfg.stimEndTime < cfg.timeoutTime)
     % If a key is pressed
     if numel(find(firstPress)) == 1
         k = find(firstPress); % Keycode of pressed key
-        if pressed && ismember(k, [KbName(cfg.repeatKey1) KbName(cfg.newKey1) KbName(cfg.repeatKey2) KbName(cfg.newKey2)])
+        kstr = KbName(k);
+        if pressed && ismember(kstr, [cfg.repeatKey1 cfg.newKey1 cfg.repeatKey2 cfg.newKey2 cfg.escapeKey])
             try
-                switch k
-                    case {KbName(cfg.repeatKey1), KbName(cfg.repeatKey2)}
+                switch kstr
+                    case {repeatKey1)), KbName(cfg.repeatKey2)}
                         r = 1;
                         fprintf("key %d pressed\n",r)
                     case {KbName(cfg.newKey1), KbName(cfg.newKey2)}
                         r = 2;
                         fprintf("key %d pressed\n",r)
+                    case {cfg.escapeKey}
+                        PsychPortAudio('Close', cfg.pahandle);
+                        Screen('CloseAll');
                 end
                 responses(1,1,1) = r;
                 responses(1,1,2) = firstPress(k) - cfg.stimEndTime;
@@ -594,7 +598,8 @@ while 1
     % If a key is pressed
     if numel(find(firstPress)) == 1
         k = find(firstPress); % Keycode of pressed key
-        if pressed && any(ismember(k, [KbName(cfg.triggerKey1), KbName(cfg.triggerKey2)]))
+        kstr = KbName(k);
+        if pressed && ismember(kstr, [cfg.triggerKey1, cfg.triggerKey2])
             try
                 run_start_time = firstPress(k)
                 fprintf("trigger key pressed at %d\n",run_start_time)
