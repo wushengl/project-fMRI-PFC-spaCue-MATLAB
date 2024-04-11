@@ -39,7 +39,7 @@ cfg.timeoutTime = 1; % 1 second
 
 Screen('Preference','SkipSyncTests',1);
 screenNum=Screen('Screens');
-screenIdx = screenNum(end);
+screenIdx = 1;
 [cfg.win, rect] = Screen('OpenWindow',screenIdx,[0 0 0]);
 cfg.freq = 44100; % Audio device frequency
 InitializePsychSound;
