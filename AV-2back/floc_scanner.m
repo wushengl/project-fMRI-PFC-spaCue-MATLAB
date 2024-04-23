@@ -10,12 +10,16 @@ function floc_scanner(subID, whichorder, device)
 %   for input.
 %
 % 180 TRs.
-
+%
 % --------------- 2024-04-03 WL update --------------
 % 1. remove peak normalization (stimuli rms normalized)
 % 2. switched to audioread (wavread is removed by MATLAB)
 % 3. added cd PATH at beginning to make sure it's in the right folder 
 % 4. updated save dir and filename
+% 
+% --------------- 2024-04-23 WL update --------------
+% 1. updated block order, now running col 5,6,5,6 in Abby new order 
+% 2. added all 5 keys for response 
 
 
 
@@ -79,6 +83,7 @@ cfg.repeatKey1 = "1"; %'1';
 cfg.repeatKey2 = "1!"; % '1!';
 cfg.newKey1 = "2"; % '2';
 cfg.newKey2 = "2@"; % '2@';
+cfg.responseKeys = ["1","1!","2","2@","3","3#","4","4$","5","5%"];
 cfg.triggerKey1 = "="; % '=';
 cfg.triggerKey2 = "=+"; %'=+';
 cfg.escapeKey = "ESCAPE"; % KbName('ESCAPE'); % this might only be useful in while loop
@@ -96,7 +101,7 @@ nBlocks = size(order,1);
 stim = cell(blocklength,nBlocks);
 responses = nan(blocklength,nBlocks,2);
 
-filename = [subID '_AV2back' datestr(now,'_yyyymmdd_HHMM') '.mat'];
+filename = [subID '_AV2back_run-0' num2str(whichorder) datestr(now,'_yyyymmdd_HHMM') '.mat'];
 edf_filename = [subID datestr(now, 'HHMM') '.edf'];
 
 save([saveDir filename]);
@@ -188,7 +193,7 @@ if cfg.eyetracker
     Eyelink('command', 'calibration_type = HV9');
     Eyelink('command', 'generate_default_targets = NO');
     
-    caloffset=round(6.5*ppd);
+    caloffset=round(4.5*ppd); % update from 6.5 to 4.5 according to Abby code
     Eyelink('command','calibration_samples = 10');
     Eyelink('command','calibration_sequence = 0,1,2,3,4,5,6,7,8,9');
     Eyelink('command','calibration_targets = %d,%d %d,%d %d,%d %d,%d %d,%d %d,%d %d,%d %d,%d %d,%d',...
@@ -534,29 +539,20 @@ while (GetSecs - cfg.stimEndTime < cfg.timeoutTime)
     if numel(find(firstPress)) == 1
         k = find(firstPress); % Keycode of pressed key
         kstr = KbName(k);
-        if pressed && ismember(kstr, [cfg.repeatKey1 cfg.newKey1 cfg.repeatKey2 cfg.newKey2 cfg.escapeKey])
+        if pressed && ismember(kstr,cfg.responseKeys) 
+        %if pressed && ismember(kstr, [cfg.repeatKey1 cfg.newKey1 cfg.repeatKey2 cfg.newKey2 cfg.escapeKey])
             try
-                switch kstr
-                    case {cfg.repeatKey1, cfg.repeatKey2}
-                        r = 1;
-                        fprintf("key %d pressed\n",r)
-                    case {cfg.newKey1, cfg.newKey2}
-                        r = 2;
-                        fprintf("key %d pressed\n",r)
-                    case {cfg.escapeKey}
-                        PsychPortAudio('Close', cfg.pahandle);
-                        Screen('CloseAll');
-                end
-                responses(1,1,1) = r;
+                fprintf("%s key pressed\n",kstr)
+                responses(1,1,1) = k;
                 responses(1,1,2) = firstPress(k) - cfg.stimEndTime;
                 break 
             catch
                 'KbQueue failure'
                 break
             end
-        elseif ismember(k, [KbName('3'),KbName('3#'), KbName('4'),KbName('4$')])
-            responses(1,1,1) = k;
-            responses(1,1,2) = firstPress(k) - cfg.stimEndTime
+        elseif pressed && ismember(kstr,cfg.escapeKey)
+            PsychPortAudio('Close', cfg.pahandle);
+            Screen('CloseAll');
         end
     else
         % Multiple keys pressed

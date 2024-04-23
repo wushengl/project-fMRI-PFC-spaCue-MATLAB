@@ -10,35 +10,60 @@ cd /Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/SN-pattern/
 % This script will form the data into a format easy to analysis in R, as
 % it'd be easiest to make plots and do stats and all different types of
 % comparisons in R. 
-%
-% This session will run through all subjects and 
 
-% TODO
-% there will be at least 8 mat files for each subject
-% load cfg and response to run_01 ... run_08
 
-subID = 'test';
+subject = 'p001';
+run_list = (5:8);
+block_num = 18;
+trial_per_block = 4;
+saveFolder = "../data/" + subject + "/";
+
 
 % load all cfg (for trialOrder) and responses
-for run = 1:8
-    data_path = ['../../data/' subID '/' subID '_run-0' char(run) '_20240329_1725.mat'];
-    cfgs.("run_0"+string(run)) = load(data_path,"cfg");
-    resps.("run_0"+string(run)) = load(data_path,"responses");
+taskTypes = repelem("",block_num*trial_per_block,length(run_list)); 
+tarDirs = repelem("",block_num*trial_per_block,length(run_list));
+spaCues = repelem("",block_num*trial_per_block,length(run_list));
+answers = nan(block_num*trial_per_block,length(run_list));
+resps = nan(block_num*trial_per_block,length(run_list));
+scores = nan(block_num*trial_per_block,length(run_list));
+idx = 1;
+for run = run_list
+    this_data_name = dir(fullfile(saveFolder, "*SNpattern_run-0"+string(run))+"*.mat");
+    this_data_path = saveFolder + string(this_data_name.name);
+    load(this_data_path);
+    % cfgs.("run_0"+string(run)) = load(this_data_path,"cfg");
+    % resps.("run_0"+string(run)) = load(this_data_path,"responses");
+
+    % extract answers 
+    %this_trial_order = cfgs.("run_0"+string(run)).cfg.trialOrder;
+    this_trial_order = cfg.trialOrder;
+    this_trial_order_split = split(this_trial_order,""); % "NLTT" => "" "N" "L" "T" "T" ""
+    this_trial_order_split = this_trial_order_split(:,2:5);
+    this_answer = (this_trial_order_split(:,4)=="T");
+    answers(:,idx) = this_answer;
+
+    % extract conditions 
+    taskTypes(:,idx) = this_trial_order_split(:,1);
+    tarDirs(:,idx) = this_trial_order_split(:,2);
+    spaCues(:,idx) = this_trial_order_split(:,3);
+
+    % extract response
+    this_resp = (1-isnan(responses(:,1)));
+    resps(:,idx) = this_resp;
+
+    % extract scores
+    scores(:,idx) = (this_resp == this_answer);
+
+    idx = idx+1;
 end
 
 % combine trial types and responses and answers (no need for separate runs)
-
-
-
-% extract response and answers 
-trial_order = cfg.trialOrder;
-trial_order_split = split(trial_order,""); % "NLTT" => "" "N" "L" "T" "T" ""
-trial_order_split = trial_order_split(:,2:5);
-answer = (trial_order_split(:,4)=="T");
-resp = (1-isnan(responses(:,1))); % first column for keypress, second for time
-
-% compute score
-score_total = sum(resp == answer);
+result.nonspa_hrtf = mean(scores((taskTypes=="N")&(spaCues=="F")));
+result.nonspa_ild = mean(scores((taskTypes=="N")&(spaCues=="L")));
+result.nonspa_itd = mean(scores((taskTypes=="N")&(spaCues=="T")));
+result.spa_hrtf = mean(scores((taskTypes=="S")&(spaCues=="F")));
+result.spa_ild = mean(scores((taskTypes=="S")&(spaCues=="L")));
+result.spa_itd = mean(scores((taskTypes=="S")&(spaCues=="T")));
 
 
 %% eyetracker 

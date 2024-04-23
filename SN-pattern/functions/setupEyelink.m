@@ -46,7 +46,7 @@ Eyelink('message', 'DISPLAY_COORDS %ld %ld %ld %ld', 0, 0, rect(3)-1, rect(4)-1)
 Eyelink('command', 'calibration_type = HV9');
 Eyelink('command', 'generate_default_targets = NO');
 
-caloffset=round(6.5*ppd);
+caloffset=round(4.5*ppd); % changed from 6.5 to 4.5 according to Abby code
 Eyelink('command','calibration_samples = 10');
 Eyelink('command','calibration_sequence = 0,1,2,3,4,5,6,7,8,9');
 Eyelink('command','calibration_targets = %d,%d %d,%d %d,%d %d,%d %d,%d %d,%d %d,%d %d,%d %d,%d',...

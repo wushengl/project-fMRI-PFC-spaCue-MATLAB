@@ -64,9 +64,19 @@ if ~strcmp(cfg.runMode,'task')
     cfg.blockPerRun = length(cfg.blockOrder);
     cfg.trialPerBlock = 1;
 end
+if strcmp(cfg.runMode,'train') 
+    % not saving for training because we need to push after any changes
+    % made on local pc to avoid version conflicts, which is not optimal 
+    cfg.doSave = false;
+else
+    cfg.doSave = true;
+end
+
 cfg.saveFolder = [cfg.saveDir cfg.subID '/']; 
-if ~exist(cfg.saveFolder, 'dir')
-    mkdir(cfg.saveFolder) 
+if cfg.doSave
+    if ~exist(cfg.saveFolder, 'dir')
+        mkdir(cfg.saveFolder) 
+    end
 end
 
 % audio setting
@@ -98,7 +108,7 @@ cfg.trialAudDur = cfg.trialDur - cfg.respDur;
 
 % block setting 
 cfg.taskScreenDur = 1.0;
-cfg.blockIntv = 4.0;
+cfg.blockIntv = 2.0; % changed to 2 from 4
 if ~strcmp(cfg.runMode,'task')
     cfg.blockIntv = 1.0;
 end
@@ -122,10 +132,12 @@ cfg.escapeKey = ["q","ESCAPE"]; % KbName('ESCAPE')
 % Preallocate memory and save workspace
 responses = nan(cfg.trialNum,2);
 
-subIDrunNum = [cfg.subID '_ses-01_run-0' int2str(cfg.runIdx)]; % need update ses if split later
-filename = [subIDrunNum datestr(now,'_yyyymmdd_HHMM') '.mat'];
-cfg.edf_filename = [cfg.subID datestr(now, 'HHMM') '.edf'];
-save([cfg.saveFolder filename]);
+subIDrunNum = [cfg.subID '_ses-01_task-SNpattern_run-0' int2str(cfg.runIdx)]; % need update ses if split later
+filename = [subIDrunNum datestr(now,'_yyyymmdd_HHMM') '.mat']; % it's okay to have the timestr, can use *str* to 
+cfg.edf_filename = [cfg.subID datestr(now, 'HHMM') '.edf']; % edf file can only be saved like this due to eyelink limitation
+if cfg.doSave
+    save([cfg.saveFolder filename]);
+end
 
 % display setting 
 cfg.textSize = 36;
@@ -176,6 +188,8 @@ end
 
 blockStartTimes = (0:cfg.blockPerRun-1)*TRperBlock*TR + cfg.fixTime;
 blockStartTimes(cfg.blockPerRun/2+1:end) = blockStartTimes(cfg.blockPerRun/2+1:end) + cfg.fixTime;
+
+cfg.blockStartTimes = blockStartTimes;
 
 %trialStartTimes = (0:trialPerRun-1)*TR*TRperTrial + cfg.fixTime;
 %trialStartTimes(trialPerRun/2+1:end) = trialStartTimes(trialPerRun/2+1:end) + cfg.fixTime;
@@ -311,7 +325,9 @@ for i = 1:cfg.blockPerRun
     Screen('Flip', cfg.win);
 
     % ending info
-    save([cfg.saveFolder filename]);
+    if cfg.doSave
+        save([cfg.saveFolder filename]);
+    end
     
     % fixation in the middle
     if i == cfg.blockPerRun/2
@@ -336,11 +352,12 @@ end
 runFinishTime = GetSecs;
 runDuration = runFinishTime - runStartTime;
 fprintf("Run finished! Duration: %.3f\n",runDuration)
-save([cfg.saveFolder filename]);
+if cfg.doSave
+    save([cfg.saveFolder filename]);
+end
 
 
 %% cleanup 
 
 closeNcleanup(cfg)
 
-222
