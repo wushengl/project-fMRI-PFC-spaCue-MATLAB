@@ -22,11 +22,10 @@ function floc_scanner(subID, whichorder, device)
 % 2. added all 5 keys for response 
 
 
-
-%cd '/Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/AV-2back'
+cd '/Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/AV-2back'
 
 % BRIDGE_CENTER_PATH
-cd 'C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB\AV-2back'
+%cd 'C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB\AV-2back'
 
 % booth3 path
 %cd 'E:\Experiments\Wusheng\project-fMRI-PFC-spaCue-MATLAB\AV-2back'

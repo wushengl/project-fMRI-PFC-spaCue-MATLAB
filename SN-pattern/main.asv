@@ -25,12 +25,12 @@
 clear all
 clc
 
-%addpath(genpath('/Users/wusheng/Research/Project-fMRI-PFC-spaCue'))
-%cd /Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/SN-pattern/
+addpath(genpath('/Users/wusheng/Research/Project-fMRI-PFC-spaCue'))
+cd /Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/SN-pattern/
 
 % BRIDGE_CENTER_PATH here
-addpath(genpath('C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB'))
-cd C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB\SN-pattern
+%addpath(genpath('C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB'))
+%cd C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB\SN-pattern
 
 % booth3 windows-pc here
 %addpath(genpath('E:\Experiments\Wusheng\project-fMRI-PFC-spaCue-MATLAB'))
@@ -108,7 +108,7 @@ cfg.trialAudDur = cfg.trialDur - cfg.respDur;
 
 % block setting 
 cfg.taskScreenDur = 1.0;
-cfg.blockIntv = 4.0;
+cfg.blockIntv = 2.0; % changed to 2 from 4
 if ~strcmp(cfg.runMode,'task')
     cfg.blockIntv = 1.0;
 end
@@ -132,9 +132,9 @@ cfg.escapeKey = ["q","ESCAPE"]; % KbName('ESCAPE')
 % Preallocate memory and save workspace
 responses = nan(cfg.trialNum,2);
 
-subIDrunNum = [cfg.subID '_ses-01_run-0' int2str(cfg.runIdx)]; % need update ses if split later
-filename = [subIDrunNum datestr(now,'_yyyymmdd_HHMM') '.mat'];
-cfg.edf_filename = [cfg.subID datestr(now, 'HHMM') '.edf'];
+subIDrunNum = [cfg.subID '_ses-01_task-SNpattern_run-0' int2str(cfg.runIdx)]; % need update ses if split later
+filename = [subIDrunNum datestr(now,'_yyyymmdd_HHMM') '.mat']; % it's okay to have the timestr, can use *str* to 
+cfg.edf_filename = [cfg.subID datestr(now, 'HHMM') '.edf']; % edf file can only be saved like this due to eyelink limitation
 if cfg.doSave
     save([cfg.saveFolder filename]);
 end
@@ -154,6 +154,7 @@ if cfg.device == "macbook"
     screenNum=Screen('Screens');
     screenIdx = screenNum(end);
     cfg.kb = nan;
+    cfg.eyetracker = 0;
 elseif cfg.device == "scanner"
     Screen('Preference','SkipSyncTests',1);
     screenIdx = 1;
