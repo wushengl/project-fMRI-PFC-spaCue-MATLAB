@@ -48,13 +48,12 @@ for run = 1:run_num
         trial_type = ["FIX" trial_type];
         trial_type = [trial_type "FIX"];
     elseif pref == "detailed"
-        % TODO: add response time for each trial? 
-        trial_per_block = cfg.trialPerBlock;
-        trial_num = block_num * trial_per_block;
-        trial_type = repmat(trial_type,trial_per_block,1);
-        trial_type = [repelem("NI",1,block_num);trial_type;repelem("NI",1,block_num)];
-        trial_type = reshape(trial_type,[1,numel(trial_type)]); 
-        trial_type = [trial_type(1:numel(trial_type)/2) "FIX" trial_type(numel(trial_type)/2+1:end)];
+        % add block interval (as "FIX" at end of each block)
+        trial_type = [trial_type;repelem("FIX",1,block_num)];
+        trial_type = reshape(trial_type,[1,block_num*2]);
+        % add fixation time 
+        trial_type = [trial_type(1:length(trial_type)/2) "FIX" trial_type(length(trial_type)/2+1:end)];
+        trial_type = trial_type(1:end-1); % remove last block interval
         trial_type = ["FIX" trial_type];
         trial_type = [trial_type "FIX"];
     end
@@ -72,8 +71,13 @@ for run = 1:run_num
         onset = [0 onset];
         onset = [onset onset(end)+cfg.blockDur-cfg.blockIntv];
     elseif pref == "detailed"
-        % TODO: not finished yet
-        onset = [onset;onset+cfg.taskScreenDur;onset+cfg.taskScreenDur+cfg.trialDur-cfg.respDur];
+        trial_dur = cfg.blockDur - cfg.blockIntv;
+        % add block interval times
+        onset = [onset;onset+trial_dur];
+        onset = reshape(onset,[1,block_num*2]);
+        % add fixation times 
+        onset = [onset(1:length(onset)/2) onset(length(onset)/2)+cfg.blockIntv onset(length(onset)/2+1:end)];
+        onset = [0 onset];
     end
 
     % ------ get duration ------
