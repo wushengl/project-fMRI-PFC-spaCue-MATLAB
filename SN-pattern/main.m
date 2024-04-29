@@ -81,7 +81,8 @@ end
 
 % audio setting
 cfg.fs = 44100;
-cfg.dirPool = ["15", "30", "90"];
+cfg.dirPool = ["15","90"];
+%cfg.dirPool = ["15", "30", "90"];
 
 % trial setting
 cfg.sylbDur = 0.4;

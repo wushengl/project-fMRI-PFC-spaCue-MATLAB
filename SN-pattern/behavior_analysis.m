@@ -12,8 +12,8 @@ cd /Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/SN-pattern/
 % comparisons in R. 
 
 
-subject = 'p001';
-run_list = (5:8);
+subject = 'wusheng';
+run_list = (1); % (5:8)
 block_num = 18;
 trial_per_block = 4;
 saveFolder = "../data/" + subject + "/";

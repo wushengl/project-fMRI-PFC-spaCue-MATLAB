@@ -13,9 +13,9 @@ cfg.saveDir = '../../data/';
 %% sound setting 
 
 fs = 44100;
-sylb = "ba_noised";
+sylb = "int28";
 tarDir = "L";
-dirPool = ["15", "45", "90"];
+dirPool = ["15","90"]; % ["15", "45", "90"];
 cuePool = ["HRTF", "ILD", "ITD"]; % "HRTF", "ILD", "ITD"
 sylbIntv = 0.1;
 repeatPerSylb = 5;

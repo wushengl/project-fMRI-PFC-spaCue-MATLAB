@@ -8,9 +8,9 @@ sigLen = double(cfg.sylbDur * cfg.fs);
 
 % load mono syllables 
 % sigPool = ["ba","da","ga"]; 
-sigPool = ["int1","int3","int28","ba_30_30000_10db","da_30_30000_10db","ga_30_30000_10db"]; 
+sigPool = ["int1","int3","int28"]; % ,"ba_30_30000_10db","da_30_30000_10db","ga_30_30000_10db"
 for sylb = sigPool
-    sig_file = [cfg.sylbFoler char(sylb) '_F_rms0d05_350ms.wav']; % TODO: back to M
+    sig_file = [cfg.sylbFoler char(sylb) '_F_rms0d05_350ms.wav']; 
     [sig,~] = audioread(sig_file);
     sigs.(sylb) = sig;
 end
