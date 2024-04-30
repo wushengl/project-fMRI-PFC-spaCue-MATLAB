@@ -1,3 +1,16 @@
+% version 1 task using:
+% - 3 locations: 15, 30, 90 deg
+% - 3 spatial cues: HRTF, fs-ILD, fs-ITD (fs for frequency-specific)
+% - stimuli: 3 broadband interrupting sounds
+% Issues are: 
+% - ILD and ITD much worse spatialized than HRTF and spaital task is almost impossible 
+% - interrupting sounds do sounds slightly different in perceived location with the same azimuth
+%
+% Now trying:
+% - extract bb-ILD, bb-ITD (bb for broadband) 
+% - 2 spatial locations instead of 3 (15, 90 deg) 
+% - play spatialized interrupting sounds back to back 
+
 
 clear all
 clc
@@ -11,12 +24,20 @@ cfg.hrirFolder = './hrir/';
 cfg.saveDir = '../../data/'; 
 
 %% sound setting 
+do_singlesylb = false;
+do_allsylb = true;
+cue_mode = "fs"; % bb or fs
 
 fs = 44100;
-sylb = "int28";
+sylb = "int4";
 tarDir = "L";
+sylbPool = ["int1","int4","int5"]; % ,"int12"
 dirPool = ["15","90"]; % ["15", "45", "90"];
-cuePool = ["HRTF", "ILD", "ITD"]; % "HRTF", "ILD", "ITD"
+if cue_mode == "bb"
+    cuePool = ["HRTF", "bbILD", "bbITD"]; % "HRTF", "ILD", "ITD"
+else
+    cuePool = ["HRTF", "ILD", "ITD"];
+end
 sylbIntv = 0.1;
 repeatPerSylb = 5;
 doRandom = false;
@@ -26,34 +47,61 @@ cfg.fs = fs;
 cfg.dirPool = dirPool;
 spaSylbs = generateSpaSylbs(cfg); 
 
-%% makeup the sound sequence
+%% makeup the sound sequence with 1 sylb
 
-for cue = cuePool
-
-    % generate sequence
-    sigPool = sylb + "_" + dirPool + tarDir + "_";
-    sigPool = reshape(sigPool + cue,[],1); % all combination of angle and cue
-    sigSeq = repmat(sigPool,repeatPerSylb);
+if do_singlesylb
+    for cue = cuePool
     
-    if doRandom
-        sigSeq = sigSeq(randperm(length(sigSeq)));
+        % generate sequence
+        sigPool = sylb + "_" + dirPool + tarDir + "_";
+        sigPool = reshape(sigPool + cue,[],1); % all combination of angle and cue
+        sigSeq = repmat(sigPool,repeatPerSylb);
+        
+        if doRandom
+            sigSeq = sigSeq(randperm(length(sigSeq)));
+        end
+        
+        sigConcat = [];
+        sigIntv = zeros([ceil(sylbIntv*fs),2]);
+        for i = 1:length(sigSeq)
+            thisSigName = sigSeq(i);
+            thisSig = spaSylbs.(thisSigName);
+            sigConcat = [sigConcat;thisSig];
+            sigConcat = [sigConcat;sigIntv];
+        end
+        
+        %sound(sigConcat,fs)
+        save_path = ['./examples/' char(sylb) '_F_' char(cue) '_' char(strjoin(dirPool,'-')) '.wav'];
+        audiowrite(save_path,sigConcat,fs)
+    
     end
-    
-    sigConcat = [];
-    sigIntv = zeros([ceil(sylbIntv*fs),2]);
-    for i = 1:length(sigSeq)
-        thisSigName = sigSeq(i);
-        thisSig = spaSylbs.(thisSigName);
-        sigConcat = [sigConcat;thisSig];
-        sigConcat = [sigConcat;sigIntv];
-    end
-    
-    %sound(sigConcat,fs)
-    
-    save_path = ['./examples/' char(sylb) '_F_' char(cue) '_' char(strjoin(dirPool,'-')) '.wav'];
-    audiowrite(save_path,sigConcat,fs)
-
 end
+
+%% makeup the sound sequence with all sylb
+
+if do_allsylb
+    for cue = cuePool
+        sigPool = sylbPool' + "_" + dirPool + tarDir + "_";
+        sigPool = reshape(sigPool + cue,[],1);
+        sigSeq = repmat(sigPool,repeatPerSylb,1);
+
+        sigConcat = [];
+        sigIntv = zeros([ceil(sylbIntv*fs),2]);
+        for i = 1:length(sigSeq)
+            thisSigName = sigSeq(i);
+            thisSig = spaSylbs.(thisSigName);
+            sigConcat = [sigConcat;thisSig];
+            sigConcat = [sigConcat;sigIntv];
+        end
+        
+        %sound(sigConcat,fs)
+        save_path = ['./examples/' 'allstim' '_F_' char(cue) '_' char(strjoin(dirPool,'-')) '.wav'];
+        audiowrite(save_path,sigConcat,fs)
+        
+    
+    end
+end
+
 
 %% plot spectrum 
 % dirPool

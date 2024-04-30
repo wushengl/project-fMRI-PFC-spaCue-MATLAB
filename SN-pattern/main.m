@@ -20,7 +20,7 @@
 % run this script once for each run, fill in the run number in dialog. 
 % There will be no break within each run (~6min), but some fixation
 % time at beginning, middle, and end of the run.
-% =======
+% ========
 
 clear all
 clc
@@ -85,7 +85,7 @@ cfg.dirPool = ["15","90"];
 %cfg.dirPool = ["15", "30", "90"];
 
 % trial setting
-cfg.sylbDur = 0.4;
+cfg.sylbDur = 0.4; % 0.4
 cfg.cue2tarIntv = 0.5;
 cfg.sylbIntv = 0;
 cfg.pat2patIntv = 0.4;

@@ -13,8 +13,10 @@ switch spaCue_char
         spaCue = "HRTF";
     case 'L'
         spaCue = "ILD";
+        %spaCue = "bbILD";
     case 'T'
         spaCue = "ITD";
+        %spaCue = "bbITD";
     otherwise
         error("Undefined spaCue_car in thisTrial.")
 end
@@ -30,7 +32,7 @@ end
 
 % each syllable appear twice maximum
 %sylbPool = ["ba","da","ga","ba","da","ga"]; % TODO
-sylbPool = ["int1", "int3", "int28", "int1", "int3", "int28"];
+sylbPool = ["int1", "int4", "int5", "int1", "int4", "int5"]; % 1, 3, 28 for p001
 %sylbPool = ["ba_30_30000_10db","da_30_30000_10db","ga_30_30000_10db",...
 %    "ba_30_30000_10db","da_30_30000_10db","ga_30_30000_10db"];
 ptn1_sylbs = randsample(sylbPool,cfg.sylbPerPat);
@@ -89,6 +91,10 @@ end
 % we don't have any overlap of signals in this task, so simply place those
 % syllables at their locations without adding all signals (need to pad all)
 % is fine. 
+
+% TODO: remove this
+disp(ptn1_dirs)
+disp(ptn2_dirs)
 
 for s = 1:cfg.sylbPerPat
     this_ptn1_sylb = ptn1_sylbs(s); % e.g. "ba"
