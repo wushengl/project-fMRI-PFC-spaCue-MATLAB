@@ -12,11 +12,13 @@ switch spaCue_char
     case 'F'
         spaCue = "HRTF";
     case 'L'
-        spaCue = "ILD";
+        %spaCue = "ILD";
         %spaCue = "bbILD";
+        spaCue = "fixedILD";
     case 'T'
-        spaCue = "ITD";
+        %spaCue = "ITD";
         %spaCue = "bbITD";
+        spaCue = "fixedITD";
     otherwise
         error("Undefined spaCue_car in thisTrial.")
 end
@@ -35,15 +37,19 @@ end
 sylbPool = ["int1", "int4", "int5", "int1", "int4", "int5"]; % 1, 3, 28 for p001
 %sylbPool = ["ba_30_30000_10db","da_30_30000_10db","ga_30_30000_10db",...
 %    "ba_30_30000_10db","da_30_30000_10db","ga_30_30000_10db"];
+
+repeatDirPool = [cfg.dirPool cfg.dirPool];
+
 ptn1_sylbs = randsample(sylbPool,cfg.sylbPerPat);
-ptn1_dirs = randsample(cfg.dirPool,cfg.sylbPerPat,true);
+ptn1_dirs = randsample(repeatDirPool,cfg.sylbPerPat,false);
 
 if taskType == 'S'
     ptn2_sylbs = ptn1_sylbs; % definately not correlate with ptn2_dirs
     if isTar == 'T'
         ptn2_dirs = ptn1_dirs;
     else
-        ptn2_dirs = replaceLaterItem(ptn1_dirs,cfg.dirPool,cfg);
+        %ptn2_dirs = replaceLaterItem(ptn1_dirs,cfg.dirPool,cfg);
+        ptn2_dirs = switchTwoItem(ptn1_dirs);
     end
 elseif taskType == 'N'
     ptn2_dirs = ptn1_dirs;
@@ -57,6 +63,10 @@ else % passive task
     ptn2_sylbs = replaceLaterItem(ptn1_sylbs,sylbPool,cfg);
 end
 
+
+% TODO: remove this
+%ptn1_dirs = ["30","90","30","90"];
+%ptn2_dirs = ["30","30","90","90"];
 
 %% concate signals 
 % audio sigal does not include task type instruction screen, it starts from
@@ -125,4 +135,19 @@ function new_seq = replaceLaterItem(seq,pool,cfg)
     % create new sequence, with 1 later item not the same as original
     new_seq = seq;
     new_seq(replace_idx) = randsample(new_pool,1);
+end
+
+function new_seq = switchTwoItem(seq)
+    % seq is 4 item sequence with 2 dir1 and 2 dir 2
+    % here I'm finding a non-repeating pair and switching their positions
+    seq_next = seq(2:end);
+    is_repeat = seq(1:end-1) == seq_next;
+    switch_idx = randsample(find(is_repeat==0),1);
+
+    switch_item1 = seq(switch_idx);
+    switch_item2 = seq(switch_idx+1);
+
+    new_seq = seq;
+    new_seq(switch_idx) = switch_item2;
+    new_seq(switch_idx+1) = switch_item1;
 end

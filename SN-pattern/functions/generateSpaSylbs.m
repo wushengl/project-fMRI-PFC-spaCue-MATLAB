@@ -17,7 +17,7 @@ end
 
 
 % convolve to obtain spatialized syllables
-spaCuePool = ["HRTF","ILD","ITD","bbILD","bbITD"];
+spaCuePool = ["HRTF","ILD","ITD","bbILD","bbITD","fixedILD","fixedITD"];
 for dir = cfg.dirPool
 
     hrir_file = [cfg.hrirFolder 'H0e0' char(dir) 'a.wav'];
@@ -29,6 +29,23 @@ for dir = cfg.dirPool
     spaCues.("ITD") = getFreqSpecITD(hrir);
     spaCues.("bbILD") = getBroadBandILD(hrir);
     spaCues.("bbITD") = getBroadBandITD(hrir); 
+    spaCues.("fixedILD") = zeros(size(hrir));
+    spaCues.("fixedITD") = zeros(size(hrir));
+    if dir == "30"
+        % hrir is 128 samples, roughly 3ms 
+        % here I'm using Stecker values for ILD and ITD 
+        % right louder than left
+        spaCues.("fixedILD")(1,1) = 0.3; % roughly 10dB
+        spaCues.("fixedILD")(1,2) = 1;
+        % right leading
+        spaCues.("fixedITD")(18,1) = 1; % roughly 400us
+        spaCues.("fixedITD")(1,2) = 1;
+    elseif dir == "90"
+        spaCues.("fixedILD")(1,1) = 0.1; % roughly 20dB
+        spaCues.("fixedILD")(1,2) = 1;
+        spaCues.("fixedITD")(35,1) = 1; % roughly 800us
+        spaCues.("fixedITD")(1,2) = 1;
+    end
 
     for hemi = ["L","R"]
         tarDir = dir+hemi; 
@@ -157,6 +174,52 @@ ild(1,2) = 1;
 end
 
 function itd = getBroadBandITD(hrir)
+% [r, lags] = xcorr(x,y) returns
+% - r: cross correlation between x and y signal 
+% - lags: corresponding lags in the sliding signal 
+% both in length len(x) + len(y) - 1 (x end to y head to x head to y end) 
+%
+% Here use [r, lags] = xcorr(hrir(:,1),hrir(:,2)) to obtain cross
+% correlation between left and right channel, the ITD can be obtained by
+% lags(find_peak(r)), in samples. Return abs(itd) for easier-to-read code. 
+%
+% Last step is create corresponding impulse response to apply time shift,
+% it'd be easier to combine frequency-specific and broadband spatialized
+% stimuli into one struct, and easy to switch methods. To stay consistent
+% with hrir, the bb-itd hrir here is also coming from right. 
+
+[r, lags] = xcorr(hrir(:,1),hrir(:,2));
+itd_value = lags(r == max(r));
+itd_check = abs(finddelay(hrir(:,1),hrir(:,2)));
+
+if itd_value ~= itd_check
+    warning("Inconsistent itd found with different methods!")
+end
+
+itd = zeros(size(hrir));
+itd(itd_value,1) = 1;
+itd(1,2) = 1;
+
+end
+
+
+%% functions to use fixed broadband ILD and ITD
+
+function ild = fixedBroadBandILD(hrir)
+% MIT hrir are measured for right hemisphere, here M will be less than 1
+% I'm attenuating lower channel to achieve ILD, safer for participants.
+% And I created bb-ild hrir to stay consistent with frequenc-specific
+% hrirs, this can also be applied by convolution. 
+
+M = rms(hrir(:,1))/rms(hrir(:,2)); 
+ild = zeros(size(hrir));
+ild(1,1) = M;
+ild(1,2) = 1;
+% disp(M)
+
+end
+
+function itd = fixedBroadBandITD(hrir)
 % [r, lags] = xcorr(x,y) returns
 % - r: cross correlation between x and y signal 
 % - lags: corresponding lags in the sliding signal 
