@@ -64,10 +64,6 @@ else % passive task
 end
 
 
-% TODO: remove this
-%ptn1_dirs = ["30","90","30","90"];
-%ptn2_dirs = ["30","30","90","90"];
-
 %% concate signals 
 % audio sigal does not include task type instruction screen, it starts from
 % playing cue sound. 
