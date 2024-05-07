@@ -12,8 +12,8 @@ cd /Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/SN-pattern/
 % comparisons in R. 
 
 
-subject = 'wusheng';
-run_list = (1); % (5:8)
+subject = 'p002';
+run_list = (2:4); % (5:8)
 block_num = 18;
 trial_per_block = 4;
 saveFolder = "../data/" + subject + "/";
@@ -29,6 +29,11 @@ scores = nan(block_num*trial_per_block,length(run_list));
 idx = 1;
 for run = run_list
     this_data_name = dir(fullfile(saveFolder, "*SNpattern_run-0"+string(run))+"*.mat");
+
+    if length(this_data_name) > 1
+        fprintf("Run %d has more than 1 saved file, using %s\n",run,this_data_name(end).name)
+        this_data_name = this_data_name(end);
+    end
     this_data_path = saveFolder + string(this_data_name.name);
     load(this_data_path);
     % cfgs.("run_0"+string(run)) = load(this_data_path,"cfg");

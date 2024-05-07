@@ -83,7 +83,7 @@ audio_dur = ptn2_onsets(end) + cfg.sylbDur;
 audio_samps = ceil(audio_dur*cfg.fs);
 trialSig = zeros(audio_samps,2);
 
-cue_sylb = "int3";
+cue_sylb = "int4";
 % cue_sylb = "ba_30_30000_10db"; % TODO
 cue_dir = cfg.dirPool(2);
 cue_sig = spaSylbs.(cue_sylb+"_"+cue_dir+string(tarHemi)+"_"+spaCue);
@@ -99,8 +99,8 @@ end
 % is fine. 
 
 % TODO: remove this
-disp(ptn1_dirs)
-disp(ptn2_dirs)
+%disp(ptn1_dirs)
+%disp(ptn2_dirs)
 
 for s = 1:cfg.sylbPerPat
     this_ptn1_sylb = ptn1_sylbs(s); % e.g. "ba"

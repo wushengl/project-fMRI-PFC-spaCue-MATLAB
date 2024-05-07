@@ -26,15 +26,15 @@
 clear all
 clc
 
-%addpath(genpath('/Users/wusheng/Research/Project-fMRI-PFC-spaCue'))
-%cd /Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/SN-pattern/
+addpath(genpath('/Users/wusheng/Research/Project-fMRI-PFC-spaCue'))
+cd /Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/SN-pattern/
 
 % BRIDGE_CENTER Mac
 % TODO
 
 % BRIDGE_CENTER Windows 
-addpath(genpath('C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB'))
-cd C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB\SN-pattern
+%addpath(genpath('C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB'))
+%cd C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB\SN-pattern
 
 % booth3 windows-pc here
 %addpath(genpath('E:\Experiments\Wusheng\project-fMRI-PFC-spaCue-MATLAB'))
@@ -327,14 +327,18 @@ for i = 1:cfg.blockPerRun
 
     disp("block finish relative to block onset:")
     disp(GetSecs-blockStartTime)
+    disp("block finish relative to run onset:")
+    disp(GetSecs-runStartTime)
     
     DrawFormattedText(cfg.win, 'WAITING FOR NEXT BLOCK...', 'center','center',[255 255 255]);
     Screen('Flip', cfg.win);
 
+    tic
     % ending info
     if cfg.doSave
         save([cfg.saveFolder filename]);
     end
+    toc
     
     % fixation in the middle
     if i == cfg.blockPerRun/2

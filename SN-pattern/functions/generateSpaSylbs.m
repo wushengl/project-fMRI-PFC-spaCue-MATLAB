@@ -8,7 +8,9 @@ sigLen = double(cfg.sylbDur * cfg.fs);
 
 % load mono syllables 
 % sigPool = ["ba","da","ga"]; 
-sigPool = ["int1","int3","int4","int5","int12","int28","ba","da","ga"]; % ,"ba_30_30000_10db","da_30_30000_10db","ga_30_30000_10db"
+% ,"ba_30_30000_10db","da_30_30000_10db","ga_30_30000_10db"
+% "int3","int12","int28","ba","da","ga"
+sigPool = ["int1","int4","int5"]; 
 for sylb = sigPool
     sig_file = [cfg.sylbFoler char(sylb) '_F_rms0d05_350ms.wav']; 
     [sig,~] = audioread(sig_file);
@@ -17,7 +19,7 @@ end
 
 
 % convolve to obtain spatialized syllables
-spaCuePool = ["HRTF","ILD","ITD","bbILD","bbITD","fixedILD","fixedITD"];
+spaCuePool = ["HRTF","fixedILD","fixedITD"]; % "bbILD","bbITD","ILD","ITD",
 for dir = cfg.dirPool
 
     hrir_file = [cfg.hrirFolder 'H0e0' char(dir) 'a.wav'];
@@ -25,10 +27,10 @@ for dir = cfg.dirPool
 
     % obtain frequency specific ILD and ITDs and save all to struct
     spaCues.("HRTF") = hrir;
-    spaCues.("ILD") = getFreqSpecILD(hrir);
-    spaCues.("ITD") = getFreqSpecITD(hrir);
-    spaCues.("bbILD") = getBroadBandILD(hrir);
-    spaCues.("bbITD") = getBroadBandITD(hrir); 
+    %spaCues.("ILD") = getFreqSpecILD(hrir);
+    %spaCues.("ITD") = getFreqSpecITD(hrir);
+    %spaCues.("bbILD") = getBroadBandILD(hrir);
+    %spaCues.("bbITD") = getBroadBandITD(hrir); 
     spaCues.("fixedILD") = zeros(size(hrir));
     spaCues.("fixedITD") = zeros(size(hrir));
     if dir == "30"
@@ -84,25 +86,25 @@ end
 
 doAttITD = true;
 
-if doAttITD
-    for dir = cfg.dirPool
-        for hemi = ["L","R"]
-            for sylb = sigPool
-                hrtf_key = sylb + "_" + dir + hemi + "_HRTF";
-                itd_key = sylb + "_" + dir + hemi + "_ITD";
-
-                hrtf_sig = spaSylbs.(hrtf_key);
-                itd_sig = spaSylbs.(itd_key);
-
-                better_ear_rms = max(rms(hrtf_sig));
-
-                itd_sig_ch1 = itd_sig(:,1)./rms(itd_sig(:,1)).*better_ear_rms;
-                itd_sig_ch2 = itd_sig(:,2)./rms(itd_sig(:,2)).*better_ear_rms;
-                spaSylbs.(itd_key) = [itd_sig_ch1,itd_sig_ch2];
-            end
-        end
-    end
-end
+% if doAttITD
+%     for dir = cfg.dirPool
+%         for hemi = ["L","R"]
+%             for sylb = sigPool
+%                 hrtf_key = sylb + "_" + dir + hemi + "_HRTF";
+%                 itd_key = sylb + "_" + dir + hemi + "_ITD";
+% 
+%                 hrtf_sig = spaSylbs.(hrtf_key);
+%                 itd_sig = spaSylbs.(itd_key);
+% 
+%                 better_ear_rms = max(rms(hrtf_sig));
+% 
+%                 itd_sig_ch1 = itd_sig(:,1)./rms(itd_sig(:,1)).*better_ear_rms;
+%                 itd_sig_ch2 = itd_sig(:,2)./rms(itd_sig(:,2)).*better_ear_rms;
+%                 spaSylbs.(itd_key) = [itd_sig_ch1,itd_sig_ch2];
+%             end
+%         end
+%     end
+% end
 
 end
 
