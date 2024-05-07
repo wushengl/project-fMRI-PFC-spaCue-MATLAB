@@ -203,49 +203,6 @@ itd(1,2) = 1;
 end
 
 
-%% functions to use fixed broadband ILD and ITD
 
-function ild = fixedBroadBandILD(hrir)
-% MIT hrir are measured for right hemisphere, here M will be less than 1
-% I'm attenuating lower channel to achieve ILD, safer for participants.
-% And I created bb-ild hrir to stay consistent with frequenc-specific
-% hrirs, this can also be applied by convolution. 
-
-M = rms(hrir(:,1))/rms(hrir(:,2)); 
-ild = zeros(size(hrir));
-ild(1,1) = M;
-ild(1,2) = 1;
-% disp(M)
-
-end
-
-function itd = fixedBroadBandITD(hrir)
-% [r, lags] = xcorr(x,y) returns
-% - r: cross correlation between x and y signal 
-% - lags: corresponding lags in the sliding signal 
-% both in length len(x) + len(y) - 1 (x end to y head to x head to y end) 
-%
-% Here use [r, lags] = xcorr(hrir(:,1),hrir(:,2)) to obtain cross
-% correlation between left and right channel, the ITD can be obtained by
-% lags(find_peak(r)), in samples. Return abs(itd) for easier-to-read code. 
-%
-% Last step is create corresponding impulse response to apply time shift,
-% it'd be easier to combine frequency-specific and broadband spatialized
-% stimuli into one struct, and easy to switch methods. To stay consistent
-% with hrir, the bb-itd hrir here is also coming from right. 
-
-[r, lags] = xcorr(hrir(:,1),hrir(:,2));
-itd_value = lags(r == max(r));
-itd_check = abs(finddelay(hrir(:,1),hrir(:,2)));
-
-if itd_value ~= itd_check
-    warning("Inconsistent itd found with different methods!")
-end
-
-itd = zeros(size(hrir));
-itd(itd_value,1) = 1;
-itd(1,2) = 1;
-
-end
 
 

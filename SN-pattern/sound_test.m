@@ -8,8 +8,14 @@
 function sound_test(blockLen)
 % This function plays stimuli for AV-2back and SN-pattern in random order
 
+% MacBook
 %addpath(genpath('/Users/wusheng/Research/Project-fMRI-PFC-spaCue'))
 %cd /Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/SN-pattern/
+
+% BRIDGE Mac
+% TODO
+
+% BRIDGE Windows
 addpath(genpath('C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB'))
 cd C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB\SN-pattern
 

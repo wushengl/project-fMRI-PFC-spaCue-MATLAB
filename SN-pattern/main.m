@@ -29,7 +29,10 @@ clc
 addpath(genpath('/Users/wusheng/Research/Project-fMRI-PFC-spaCue'))
 cd /Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/SN-pattern/
 
-% BRIDGE_CENTER_PATH here
+% BRIDGE_CENTER Mac
+% TODO
+
+% BRIDGE_CENTER Windows 
 %addpath(genpath('C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB'))
 %cd C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB\SN-pattern
 
@@ -134,6 +137,7 @@ cfg.escapeKey = ["q","ESCAPE"]; % KbName('ESCAPE')
 % Preallocate memory and save workspace
 responses = nan(cfg.trialNum,2);
 
+% TODO: add ses to input 
 subIDrunNum = [cfg.subID '_ses-01_task-SNpattern_run-0' int2str(cfg.runIdx)]; % need update ses if split later
 filename = [subIDrunNum datestr(now,'_yyyymmdd_HHMM') '.mat']; % it's okay to have the timestr, can use *str* to 
 cfg.edf_filename = [cfg.subID datestr(now, 'HHMM') '.edf']; % edf file can only be saved like this due to eyelink limitation
@@ -161,7 +165,7 @@ elseif cfg.device == "scanner"
     Screen('Preference','SkipSyncTests',1);
     screenIdx = 1;
     % use specific keyboard
-    devstring = 'Keyboard'; % 'Teensy Keyboard/Mouse'=
+    devstring = 'USB Device'; % 'Keyboard' for BRIDGE Windows
     [id,name] = GetKeyboardIndices;
     cfg.kb = id(strcmp(name,devstring)); % strcmp returns logical array
     if isempty(cfg.kb)
