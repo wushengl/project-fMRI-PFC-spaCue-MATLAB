@@ -26,15 +26,15 @@
 clear all
 clc
 
-addpath(genpath('/Users/wusheng/Research/Project-fMRI-PFC-spaCue'))
-cd /Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/SN-pattern/
+%addpath(genpath('/Users/wusheng/Research/Project-fMRI-PFC-spaCue'))
+%cd /Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/SN-pattern/
 
 % BRIDGE_CENTER Mac
 % TODO
 
 % BRIDGE_CENTER Windows 
-%addpath(genpath('C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB'))
-%cd C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB\SN-pattern
+addpath(genpath('C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB'))
+cd C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB\SN-pattern
 
 % booth3 windows-pc here
 %addpath(genpath('E:\Experiments\Wusheng\project-fMRI-PFC-spaCue-MATLAB'))
