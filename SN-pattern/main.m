@@ -165,7 +165,7 @@ elseif cfg.device == "scanner"
     Screen('Preference','SkipSyncTests',1);
     screenIdx = 1;
     % use specific keyboard
-    devstring = 'USB Device'; % 'Keyboard' for BRIDGE Windows
+    devstring = 'Keyboard'; %  for BRIDGE Windows 'USB Device'
     [id,name] = GetKeyboardIndices;
     cfg.kb = id(strcmp(name,devstring)); % strcmp returns logical array
     if isempty(cfg.kb)
