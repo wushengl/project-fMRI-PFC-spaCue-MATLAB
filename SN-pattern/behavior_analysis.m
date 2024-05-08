@@ -13,7 +13,7 @@ cd /Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/SN-pattern/
 
 
 subject = 'p002';
-run_list = (2:4); % (5:8)
+run_list = (1:8); % (5:8)
 block_num = 18;
 trial_per_block = 4;
 saveFolder = "../data/" + subject + "/";
@@ -36,6 +36,7 @@ for run = run_list
     end
     this_data_path = saveFolder + string(this_data_name.name);
     load(this_data_path);
+    disp(this_data_path);
     % cfgs.("run_0"+string(run)) = load(this_data_path,"cfg");
     % resps.("run_0"+string(run)) = load(this_data_path,"responses");
 
