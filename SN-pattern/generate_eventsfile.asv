@@ -90,8 +90,8 @@ for run = 1:run_num
     % ======== save to tsv ========
     this_event = [onset' duration' trial_type'];
     this_table = array2table(this_event,'VariableNames',["onset","duration","trial_type"]);
-    this_save_name = "sub-" + subject_mri + "_ses-0" + string(ses_order(run)) + "_task-SNpattern_run-0" + string(run) + "_events.csv";
-    writetable(this_table,saveFolder+this_save_name);
+    this_save_name = "sub-" + subject_mri + "_ses-0" + string(ses_order()) + "_task-SNpattern_run-0" + string(run) + "_events.csv";
+    %writetable(this_table,saveFolder+this_save_name);
 end
 
 
