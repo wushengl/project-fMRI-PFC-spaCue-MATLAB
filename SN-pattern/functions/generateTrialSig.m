@@ -20,7 +20,7 @@ switch spaCue_char
         %spaCue = "bbITD";
         spaCue = "fixedITD";
     otherwise
-        error("Undefined spaCue_car in thisTrial.")
+        error("Undefined spaCue_char in thisTrial.")
 end
 
 
@@ -33,18 +33,20 @@ end
 % follow 2, the syllable pattern will be randomly true or false  
 
 % each syllable appear twice maximum
-%sylbPool = ["ba","da","ga","ba","da","ga"]; % TODO
+% sylbPool = ["int1", "int1", "int1", "int1", "int1", "int1"]; % this is for testing only
 sylbPool = ["int1", "int4", "int5", "int1", "int4", "int5"]; % 1, 3, 28 for p001
-%sylbPool = ["ba_30_30000_10db","da_30_30000_10db","ga_30_30000_10db",...
-%    "ba_30_30000_10db","da_30_30000_10db","ga_30_30000_10db"];
-
 repeatDirPool = [cfg.dirPool cfg.dirPool];
 
-ptn1_sylbs = randsample(sylbPool,cfg.sylbPerPat);
+% random sample sylb_per_pattern (4) from the pool
+ptn1_sylbs = randsample(sylbPool,cfg.sylbPerPat); 
 ptn1_dirs = randsample(repeatDirPool,cfg.sylbPerPat,false);
 
 if taskType == 'S'
-    ptn2_sylbs = ptn1_sylbs; % definately not correlate with ptn2_dirs
+    % spatial task, choose a random sound and fix for this trial
+    ptn1_sylbs = repmat(randsample(sylbPool,1),1,4); % choose 1 random repeat 4 times, result in 1x4 array
+    ptn2_sylbs = ptn1_sylbs; 
+    % random direction sequence
+    ptn1_dirs = randsample(repeatDirPool,cfg.sylbPerPat,false);
     if isTar == 'T'
         ptn2_dirs = ptn1_dirs;
     else
@@ -52,15 +54,39 @@ if taskType == 'S'
         ptn2_dirs = switchTwoItem(ptn1_dirs);
     end
 elseif taskType == 'N'
+    % non-spatial task, choose a random location and fix for this trial
+    ptn1_dirs = repmat(randsample(repeatDirPool,1),1,4);
     ptn2_dirs = ptn1_dirs;
+    % random syllable sequence
+    ptn1_sylbs = randsample(sylbPool,cfg.sylbPerPat);
     if isTar == 'T'
         ptn2_sylbs = ptn1_sylbs;
     else
         ptn2_sylbs = replaceLaterItem(ptn1_sylbs,sylbPool,cfg);
     end
-else % passive task
-    ptn2_dirs = replaceLaterItem(ptn1_dirs,cfg.dirPool,cfg);
-    ptn2_sylbs = replaceLaterItem(ptn1_sylbs,sylbPool,cfg);
+else 
+    % passive task, half fixing location random syllable, half fixing
+    % syllalbe, random location. Compare both, should be the same, if so, 
+    % average to be baseline.
+
+    % Here I'm not adding a new indicator for whether this passive trial is
+    % fixing location or syllable, simply using T/F indicator, which is
+    % already balanced and not useful for behavior.
+    if isTar == 'T'
+        % fixing location, random syllable 
+        ptn1_dirs = repmat(randsample(repeatDirPool,1),1,4);
+        ptn2_dirs = ptn1_dirs;
+        ptn1_sylbs = randsample(sylbPool,cfg.sylbPerPat);
+        ptn2_sylbs = ptn1_sylbs;
+    else
+        % fixing syllable, random location 
+        ptn1_sylbs = repmat(randsample(sylbPool,1),1,4); % choose 1 random repeat 4 times, result in 1x4 array
+        ptn2_sylbs = ptn1_sylbs; 
+        ptn1_dirs = randsample(repeatDirPool,cfg.sylbPerPat,false);
+        ptn2_dirs = ptn1_dirs;
+    end
+    %ptn2_dirs = replaceLaterItem(ptn1_dirs,cfg.dirPool,cfg);
+    %ptn2_sylbs = replaceLaterItem(ptn1_sylbs,sylbPool,cfg);
 end
 
 
@@ -84,7 +110,7 @@ audio_samps = ceil(audio_dur*cfg.fs);
 trialSig = zeros(audio_samps,2);
 
 cue_sylb = "int4";
-% cue_sylb = "ba_30_30000_10db"; % TODO
+% cue_sylb = "ba_30_30000_10db"; 
 cue_dir = cfg.dirPool(2);
 cue_sig = spaSylbs.(cue_sylb+"_"+cue_dir+string(tarHemi)+"_"+spaCue);
 sylb_len = length(cue_sig);

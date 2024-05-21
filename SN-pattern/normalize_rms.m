@@ -3,7 +3,7 @@ function normalize_rms(doNormalize,doShowRMS)
 % value as syllables (0.05)
 % doNormalize and doShowRMS are boolean controling if normalize / show RMS
 
-desired_rms = 0.05; 
+desired_rms = 0.03; 
 
 AV_cat_folder = '../AV-2back/animal-sounds/cat_sounds/';
 AV_dog_folder = '../AV-2back/animal-sounds/dog_sounds/';

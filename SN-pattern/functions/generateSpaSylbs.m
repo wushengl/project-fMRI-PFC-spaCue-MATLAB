@@ -37,7 +37,7 @@ for dir = cfg.dirPool
         % hrir is 128 samples, roughly 3ms 
         % here I'm using Stecker values for ILD and ITD 
         % right louder than left
-        spaCues.("fixedILD")(1,1) = 0.3; % roughly 10dB
+        spaCues.("fixedILD")(1,1) = 0.3; % roughly 10dB 
         spaCues.("fixedILD")(1,2) = 1;
         % right leading
         spaCues.("fixedITD")(18,1) = 1; % roughly 400us
@@ -45,7 +45,7 @@ for dir = cfg.dirPool
     elseif dir == "90"
         spaCues.("fixedILD")(1,1) = 0.1; % roughly 20dB
         spaCues.("fixedILD")(1,2) = 1;
-        spaCues.("fixedITD")(35,1) = 1; % roughly 800us
+        spaCues.("fixedITD")(35,1) = 1; % roughly 800us 
         spaCues.("fixedITD")(1,2) = 1;
     end
 

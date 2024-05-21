@@ -9,10 +9,10 @@ function info = getRunInfo(cfg)
     info = answer;
 
     if strcmp(answer{3},'test')
-        trial_number = 4;
+        trial_number = 6;
         eyetracker = 0;
         runIdx = 0;
-        trialOrder = ["SLLF";"SLTF";"SRLF";"SRTF"];
+        trialOrder = ["SLLF";"SLTF";"SRLF";"SRTF";"SLFF";"SRFF"];
         blockOrder = trialOrder;
     elseif strcmp(answer{3},'train')
         trial_number = 8;

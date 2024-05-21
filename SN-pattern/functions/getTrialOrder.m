@@ -47,5 +47,19 @@ end
 trialOrder = trialList + tarList;
 blockOrder = blockList;
 
+% change half blocks for Passive to fix location, half to fix syllable, use
+% T/F as an indicator. 
+p_idxs = strmatch("P", trialOrder);
+p_tarList = repmat(tarPool',blockPerRun*runNum/length(taskPool)/2,1);
+p_tarList = p_tarList(randperm(length(p_tarList)));
+p_tarList = repelem(p_tarList,trialPerBlock);
+t_idx = 1;
+for pp = p_idxs'
+    this_trial = char(trialOrder(pp));
+    new_trial = this_trial(1:3) + p_tarList(t_idx);
+    trialOrder(pp) = string(new_trial);
+    t_idx = t_idx +1;
+end
+
 end
 
