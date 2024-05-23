@@ -36,7 +36,7 @@ clc
 addpath(genpath('C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB'))
 cd C:\Users\Brown-lab\project-fMRI-PFC-spaCue-MATLAB\SN-pattern
 
-% booth3 windows-pc here
+% booth3 windows-pc hereq
 %addpath(genpath('E:\Experiments\Wusheng\project-fMRI-PFC-spaCue-MATLAB'))
 %cd E:\Experiments\Wusheng\project-fMRI-PFC-spaCue-MATLAB\SN-pattern
 
