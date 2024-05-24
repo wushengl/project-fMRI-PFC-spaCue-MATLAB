@@ -1,4 +1,7 @@
 function floc_practice(subID, modality, run)
+% floc_practice("train",'a',1)
+% floc_practice("train",'v',1)
+% 
 % This function runs a modality-specific (auditory or visual)
 % working-memory task, and its passive-viewing equivalent, in
 % alternating blocks
@@ -17,8 +20,9 @@ function floc_practice(subID, modality, run)
 % 5. added lines to open the largest index screen, e.g. if monitor
 % detected, show on monitor instead of pc screen 
 
-% cd BRIDGE_CENTER_PATH
+addpath(genpath('/Users/wusheng/Research/Project-fMRI-PFC-spaCue'))
 cd '/Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/AV-2back'
+
 
 % TESTING
 Screen('Preference', 'SkipSyncTests', 1);
