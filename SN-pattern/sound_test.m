@@ -4,6 +4,7 @@
 % equally tight. 
 %
 % blockLen is number of sounds to play, there're 68 in total, 1.3s per sound
+% test if left and right are moving 
 
 function sound_test(blockLen)
 % This function plays stimuli for AV-2back and SN-pattern in random order
@@ -68,6 +69,7 @@ for i = 1:blockLen
     stim = stim';
     if size(stim,1) == 1
         stim = [stim;stim]; % make it stereo if it isn't already
+        %stim(2,:) = 0;
     end
     % Playback
     PsychPortAudio('FillBuffer', cfg.pahandle, stim);

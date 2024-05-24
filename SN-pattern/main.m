@@ -8,7 +8,7 @@
 %
 % - each trial contains 2 sequences with 4 syllables in each sequence 
 % - each syllable could be presented from 3 possible location in that hemi
-% - each syllable could be either BA, DA, GA 
+% - each syllable could be ==either BA, DA, GA 
 %
 % - SPATIAL: response when repeating spatial location pattern
 % - NONSPATIAL: response when repeating syllable sequences 
@@ -21,7 +21,7 @@
 % There will be no break within each run (~6min), but some fixation
 % time at beginning, middle, and end of the run.
 % 
-% =======1111111=======
+% =======1111111============
 
 clear all
 clc

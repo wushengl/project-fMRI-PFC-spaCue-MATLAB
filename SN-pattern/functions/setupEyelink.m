@@ -15,6 +15,8 @@ el = EyelinkInitDefaults(cfg.win);
 el.backgroundcolour = [0,0,0];
 el.foregroundcolour = [100 100 100];
 el.calibrationtargetcolour = [255,255,255];
+el.targetbeep = 0;
+el.feedbackbeep = 0;
 
 EyelinkUpdateDefaults(el); % Apply the changes set above.
 
