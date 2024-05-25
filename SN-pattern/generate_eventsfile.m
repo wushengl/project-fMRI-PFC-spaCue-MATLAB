@@ -17,11 +17,11 @@ cd /Users/wusheng/Research/Project-fMRI-PFC-spaCue/matlab/SN-pattern/
 
 %% load useful files
 
-subject = "p002";
-subject_mri = "p002"; % scott saved with capital P 
-ses_num = 2;
+subject = "138";
+subject_mri = "138"; % scott saved with capital P 
+ses_num = 3;
 pref = "detailed"; % detailed vs. blocked (detailed removed cue and response time)
-run_num = 9; % might have run orders duplicated runs for some subjects, make sure to fix mat data first 
+run_num = 8; % might have run orders duplicated runs for some subjects, make sure to fix mat data first 
 block_num = 18;
 saveFolder = "../data/" + subject + "/";
 
@@ -29,7 +29,7 @@ saveFolder = "../data/" + subject + "/";
 trialOrderPath = saveFolder + "trialOrder.mat";
 load(trialOrderPath,"trialOrder_full","blockOrder");
 
-ses_order = [1,1,1,1,2,2,2,2,2]; % should have length of run_num, indicating which session each run is in
+ses_order = [4,4,4,4,4,4,4,4]; % should have length of run_num, indicating which session each run is in
 
 %% create event matrix and save  
 
