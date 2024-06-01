@@ -1,4 +1,6 @@
 % this script is for behavior and eyetracker data analysis 
+% starting from p003, changed to always press a key, press index (2) for
+% same, middle (3) for different 
 
 clear all
 clc
@@ -54,7 +56,8 @@ for run = run_list
     spaCues(:,idx) = this_trial_order_split(:,3);
 
     % extract response
-    this_resp = (1-isnan(responses(:,1)));
+    % KbName('KeyNamesWindows')>> 50 = "2@", 51 = 3#""
+    this_resp = responses(:,1)==50; %
     resps(:,idx) = this_resp;
 
     % extract scores
